@@ -1,0 +1,40 @@
+# Dependencies
+# Ignora le cartelle node_modules in qualsiasi sottocartella
+**/node_modules
+
+# Build output
+# Ignora le cartelle di output della compilazione
+/dist
+/out
+/build
+
+# Log files
+# Ignora i file di log generati
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+# Ignora i file delle variabili d'ambiente che contengono segreti
+.env
+.env.local
+
+# SQLite Database
+# Ignora il file del database
+*.sqlite
+*.sqlite3
+
+# IDE and editor directories
+# Ignora le cartelle specifiche dell'editor (ma mantiene le configurazioni utili)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+node_modules/
