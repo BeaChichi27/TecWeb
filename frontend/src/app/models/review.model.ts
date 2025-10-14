@@ -1,6 +1,7 @@
 export interface Review {
   id: number;
   restaurantId: number;
+  restaurantName?: string; // Nome del ristorante, utile per mostrare le recensioni nel profilo
   userId: number;
   username: string;
   content: string;

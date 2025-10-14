@@ -16,6 +16,8 @@ export class LoginComponent implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
+  showPassword = false;
+  returnUrl = '';
 
   constructor(
     private fb: FormBuilder,
@@ -23,33 +25,69 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    /* 
+     * Creo il form di login con validazione per username e password.
+     * Entrambi i campi sono obbligatori per poter effettuare il login.
+     */
     this.loginForm = this.fb.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required]
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      rememberMe: [false] // Campo opzionale per ricordare l'utente
     });
   }
 
+  /* 
+   * All'inizializzazione, verifico se ci sono parametri nella query string:
+   * - 'registered=true': l'utente arriva dalla registrazione, mostro un messaggio di successo
+   * - 'returnUrl': l'utente è stato reindirizzato dall'auth guard, salvo l'URL di ritorno
+   */
   ngOnInit(): void {
-    // Verifica se l'utente arriva dalla registrazione
+    // Salvo l'URL di ritorno se presente
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/restaurants';
+    
+    // Verifico se l'utente arriva dalla registrazione
     this.route.queryParams.subscribe(params => {
       if (params['registered'] === 'true') {
-        this.successMessage = 'Registrazione completata! Effettua il login.';
+        this.successMessage = '✅ Registrazione completata con successo! Ora puoi effettuare il login.';
         
-        // Rimuovi il parametro dall'URL
+        /* 
+         * Rimuovo il parametro dall'URL per evitare che il messaggio
+         * riappaia se l'utente ricarica la pagina
+         */
         this.router.navigate(
           [], 
           {
             relativeTo: this.route,
-            queryParams: {},
+            queryParams: { returnUrl: this.returnUrl !== '/restaurants' ? this.returnUrl : null },
+            queryParamsHandling: 'merge',
             replaceUrl: true
           }
         );
       }
     });
+
+    /* 
+     * Se l'utente è già autenticato, lo reindirizzo direttamente
+     * alla destinazione prevista
+     */
+    if (this.authService.isLoggedIn) {
+      this.router.navigateByUrl(this.returnUrl);
+    }
   }
 
+  /* 
+   * Gestisco il submit del form di login.
+   * Verifico la validità, mostro lo spinner e invio i dati al servizio di autenticazione.
+   */
   onSubmit(): void {
+    /* 
+     * Se il form non è valido, marco tutti i campi come "touched"
+     * per mostrare i messaggi di errore all'utente
+     */
     if (this.loginForm.invalid) {
+      Object.keys(this.loginForm.controls).forEach(key => {
+        this.loginForm.get(key)?.markAsTouched();
+      });
       return;
     }
     
@@ -57,24 +95,32 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
     
-    const { username, password } = this.loginForm.value;
+    const { username, password, rememberMe } = this.loginForm.value;
     
+    /* 
+     * Invio la richiesta di login al backend.
+     * Se ha successo, reindirizzo l'utente all'URL di ritorno o alla home.
+     */
     this.authService.login(username, password).subscribe({
       next: () => {
-        /* Dopo il login riuscito, verifico se esiste un URL di ritorno.
-           Se l'utente è stato reindirizzato dall'auth guard, uso quell'URL,
-           altrimenti lo mando alla pagina principale dei ristoranti.
-        */
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/restaurants';
+        /* 
+         * Login riuscito! Mostro un messaggio di successo e reindirizzo
+         * l'utente alla pagina che stava cercando di visitare, oppure
+         * alla lista dei ristoranti come pagina predefinita.
+         */
+        this.successMessage = '✅ Login effettuato con successo!';
         
-        // Uso navigateByUrl perché returnUrl è già un percorso completo
-        this.router.navigateByUrl(returnUrl);
+        // Piccolo delay per mostrare il messaggio di successo
+        setTimeout(() => {
+          this.router.navigateByUrl(this.returnUrl);
+        }, 500);
       },
       error: (errorMessage: string) => {
-        /* Gestisco l'errore ricevuto dall'AuthService.
-           Grazie al pattern di gestione centralizzata degli errori,
-           ricevo direttamente una stringa leggibile dall'utente.
-        */
+        /* 
+         * Gestisco l'errore ricevuto dall'AuthService.
+         * Il servizio restituisce già un messaggio leggibile,
+         * quindi lo mostro direttamente all'utente.
+         */
         this.errorMessage = errorMessage;
         this.loading = false;
       },
@@ -82,5 +128,36 @@ export class LoginComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  /* 
+   * Toggle per mostrare/nascondere la password.
+   * Migliora l'usabilità permettendo all'utente di verificare cosa sta digitando.
+   */
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  /* 
+   * Pulisco i messaggi di errore quando l'utente inizia a digitare,
+   * per migliorare l'esperienza utente ed evitare messaggi obsoleti.
+   */
+  clearMessages(): void {
+    if (this.errorMessage) {
+      this.errorMessage = '';
+    }
+  }
+
+  /* Getter per accedere facilmente ai controlli del form nel template */
+  get usernameControl() { 
+    return this.loginForm.get('username'); 
+  }
+
+  get passwordControl() { 
+    return this.loginForm.get('password'); 
+  }
+
+  get rememberMeControl() { 
+    return this.loginForm.get('rememberMe'); 
   }
 }

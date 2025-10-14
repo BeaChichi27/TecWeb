@@ -1,4 +1,7 @@
 export interface Vote {
+  upvotes: number;
+  downvotes: number;
+  userVote: number | undefined;
   id: number;
   reviewId: number;
   userId: number;

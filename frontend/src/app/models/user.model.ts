@@ -4,16 +4,13 @@ export interface User {
   email?: string;
   createdAt?: string;
   updatedAt?: string;
-  // Questi campi potrebbero essere utili per statistiche utente
   restaurantsCount?: number;
   reviewsCount?: number;
 }
 
 export interface UserProfile extends User {
-  // Campi estesi che potrebbero essere utili per una pagina profilo
   bio?: string;
   avatarUrl?: string;
-  // Dati aggregati per il profilo utente
   totalUpvotesReceived?: number;
   totalDownvotesReceived?: number;
 }

@@ -127,6 +127,13 @@ export class RestaurantService {
         catchError(this.handleError)
       );
   }
+
+  /* Alias di getUserRestaurants per maggiore chiarezza semantica.
+     Restituisce i ristoranti di cui un utente è proprietario.
+  */
+  getRestaurantsByOwner(userId: number, page: number = 1, limit: number = 10): Observable<{restaurants: Restaurant[], total: number}> {
+    return this.getUserRestaurants(userId, page, limit);
+  }
   
   /* Gestisce gli errori HTTP e restituisce messaggi d'errore comprensibili.
   */

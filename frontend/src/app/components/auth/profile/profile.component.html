@@ -1,0 +1,258 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="user-avatar">
+      {{ currentUser && currentUser.username ? currentUser.username.charAt(0).toUpperCase() : '?' }}
+    </div>
+    <div class="user-info">
+      <h1>{{ currentUser?.username }}</h1>
+      <p class="user-email">{{ currentUser?.email }}</p>
+      <p class="member-since">Membro da {{ formatDate(currentUser?.createdAt || '') }}</p>
+    </div>
+  </div>
+  
+  <!-- Tab navigation -->
+  <div class="tabs-navigation">
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'info'"
+      (click)="switchTab('info')">
+      <i class="fas fa-user"></i> Informazioni
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'restaurants'"
+      (click)="switchTab('restaurants')">
+      <i class="fas fa-utensils"></i> I Miei Ristoranti ({{ restaurantsCount }})
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'reviews'"
+      (click)="switchTab('reviews')">
+      <i class="fas fa-comment"></i> Le Mie Recensioni ({{ reviewsCount }})
+    </button>
+  </div>
+  
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="loading-container">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+  
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+  
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+  
+  <!-- Tab: Informazioni profilo -->
+  <div *ngIf="activeTab === 'info' && !loading" class="tab-content">
+    <!-- Modifica profilo -->
+    <div class="profile-section">
+      <div class="section-header">
+        <h2>Informazioni Personali</h2>
+        <button 
+          *ngIf="!isEditingProfile" 
+          class="btn secondary" 
+          (click)="enableProfileEdit()">
+          <i class="fas fa-edit"></i> Modifica
+        </button>
+      </div>
+      
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="form-group">
+          <label for="username">Nome Utente</label>
+          <input 
+            type="text" 
+            id="username" 
+            formControlName="username"
+            [disabled]="true">
+          <small class="helper-text">Il nome utente non può essere modificato</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email*</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email"
+            [readonly]="!isEditingProfile">
+          <div class="validation-error" *ngIf="emailControl?.invalid && emailControl?.touched">
+            <span *ngIf="emailControl?.errors?.['required']">L'email è obbligatoria</span>
+            <span *ngIf="emailControl?.errors?.['email']">Inserisci un'email valida</span>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">Nome</label>
+            <input 
+              type="text" 
+              id="firstName" 
+              formControlName="firstName"
+              [readonly]="!isEditingProfile">
+          </div>
+          
+          <div class="form-group">
+            <label for="lastName">Cognome</label>
+            <input 
+              type="text" 
+              id="lastName" 
+              formControlName="lastName"
+              [readonly]="!isEditingProfile">
+          </div>
+        </div>
+        
+        <div *ngIf="isEditingProfile" class="form-actions">
+          <button type="button" class="btn secondary" (click)="cancelProfileEdit()">
+            <i class="fas fa-times"></i> Annulla
+          </button>
+          <button type="submit" class="btn primary" [disabled]="profileForm.invalid || loading">
+            <i class="fas fa-save"></i> Salva Modifiche
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Cambio password -->
+    <div class="profile-section">
+      <div class="section-header">
+        <h2>Sicurezza</h2>
+        <button 
+          *ngIf="!isChangingPassword" 
+          class="btn secondary" 
+          (click)="enablePasswordChange()">
+          <i class="fas fa-key"></i> Cambia Password
+        </button>
+      </div>
+      
+      <form *ngIf="isChangingPassword" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+        <div class="form-group">
+          <label for="currentPassword">Password Attuale*</label>
+          <input 
+            type="password" 
+            id="currentPassword" 
+            formControlName="currentPassword">
+          <div class="validation-error" *ngIf="currentPasswordControl?.invalid && currentPasswordControl?.touched">
+            <span *ngIf="currentPasswordControl?.errors?.['required']">La password attuale è obbligatoria</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="newPassword">Nuova Password*</label>
+          <input 
+            type="password" 
+            id="newPassword" 
+            formControlName="newPassword">
+          <div class="validation-error" *ngIf="newPasswordControl?.invalid && newPasswordControl?.touched">
+            <span *ngIf="newPasswordControl?.errors?.['required']">La nuova password è obbligatoria</span>
+            <span *ngIf="newPasswordControl?.errors?.['minlength']">La password deve essere di almeno 6 caratteri</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="confirmPassword">Conferma Nuova Password*</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            formControlName="confirmPassword">
+          <div class="validation-error" *ngIf="confirmPasswordControl?.invalid && confirmPasswordControl?.touched">
+            <span *ngIf="confirmPasswordControl?.errors?.['required']">La conferma password è obbligatoria</span>
+          </div>
+          <div class="validation-error" *ngIf="passwordForm.errors?.['passwordMismatch'] && confirmPasswordControl?.touched">
+            <span>Le password non corrispondono</span>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn secondary" (click)="cancelPasswordChange()">
+            <i class="fas fa-times"></i> Annulla
+          </button>
+          <button type="submit" class="btn primary" [disabled]="passwordForm.invalid || loading">
+            <i class="fas fa-key"></i> Cambia Password
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Zona pericolosa -->
+    <div class="profile-section danger-zone">
+      <h2>Zona Pericolosa</h2>
+      <p>Una volta eliminato l'account, non c'è modo di tornare indietro. Sei sicuro?</p>
+      <button class="btn danger" (click)="deleteAccount()">
+        <i class="fas fa-trash-alt"></i> Elimina Account
+      </button>
+    </div>
+  </div>
+  
+  <!-- Tab: I Miei Ristoranti -->
+  <div *ngIf="activeTab === 'restaurants' && !loading" class="tab-content">
+    <div *ngIf="userRestaurants.length === 0" class="empty-state">
+      <i class="fas fa-utensils"></i>
+      <h3>Nessun ristorante creato</h3>
+      <p>Non hai ancora creato nessun ristorante. Inizia ora!</p>
+      <a [routerLink]="['/restaurants/new']" class="btn primary">
+        <i class="fas fa-plus-circle"></i> Crea Ristorante
+      </a>
+    </div>
+    
+    <div *ngIf="userRestaurants.length > 0" class="restaurants-grid">
+      <div *ngFor="let restaurant of userRestaurants" class="restaurant-card">
+        <a [routerLink]="['/restaurants', restaurant.id]" class="restaurant-link">
+          <div class="restaurant-image">
+            <img [src]="restaurant.imageUrl || 'assets/images/restaurant-placeholder.jpg'" [alt]="restaurant.name">
+          </div>
+          <div class="restaurant-info">
+            <h3>{{ restaurant.name }}</h3>
+            <p>{{ restaurant.description | slice:0:100 }}...</p>
+            <div class="restaurant-meta">
+              <span class="rating" *ngIf="restaurant.averageRating">
+                <i class="fas fa-star"></i> {{ restaurant.averageRating | number:'1.1-1' }}
+              </span>
+              <span class="reviews">
+                <i class="fas fa-comment"></i> {{ restaurant.reviewsCount || 0 }}
+              </span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tab: Le Mie Recensioni -->
+  <div *ngIf="activeTab === 'reviews' && !loading" class="tab-content">
+    <div *ngIf="userReviews.length === 0" class="empty-state">
+      <i class="fas fa-comment-slash"></i>
+      <h3>Nessuna recensione scritta</h3>
+      <p>Non hai ancora scritto nessuna recensione. Inizia a condividere le tue esperienze!</p>
+      <a [routerLink]="['/restaurants']" class="btn primary">
+        <i class="fas fa-search"></i> Esplora Ristoranti
+      </a>
+    </div>
+    
+    <div *ngIf="userReviews.length > 0" class="reviews-list">
+      <div *ngFor="let review of userReviews" class="review-card">
+        <div class="review-header">
+          <h3>
+            <a [routerLink]="['/restaurants', review.restaurantId]">
+              {{ review.restaurantName }}
+            </a>
+          </h3>
+          <div class="rating">
+            <i *ngFor="let star of [].constructor(review.rating)" class="fas fa-star"></i>
+          </div>
+        </div>
+        <p class="review-content">{{ review.content }}</p>
+        <div class="review-footer">
+          <span class="date">{{ formatDate(review.createdAt) }}</span>
+          <div class="review-actions">
+            <a [routerLink]="['/reviews', review.id, 'edit']" class="btn small secondary">
+              <i class="fas fa-edit"></i> Modifica
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

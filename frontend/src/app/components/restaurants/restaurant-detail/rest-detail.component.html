@@ -1,0 +1,301 @@
+<!-- Container principale con spinner di caricamento -->
+<div class="rest-detail-container">
+  <!-- Spinner di caricamento -->
+  @if (loading) {
+    <app-loading-spinner></app-loading-spinner>
+  }
+
+  <!-- Messaggio di errore -->
+  @if (errorMessage && !loading) {
+    <div class="error-message">
+      <i class="icon">⚠️</i>
+      <p>{{ errorMessage }}</p>
+      <a routerLink="/restaurants" class="btn btn-secondary">
+        Torna alla lista
+      </a>
+    </div>
+  }
+
+  <!-- Messaggio di successo -->
+  @if (successMessage && !loading) {
+    <div class="success-message">
+      <i class="icon">✅</i>
+      <p>{{ successMessage }}</p>
+    </div>
+  }
+
+  <!-- Contenuto principale -->
+  @if (restaurant && !loading) {
+    <div class="restaurant-content">
+      <!-- Header con immagine e info principali -->
+      <div class="restaurant-header">
+        <div class="header-image">
+          <img 
+            [src]="restaurant.imageUrl" 
+            [alt]="restaurant.name"
+            (error)="$event.target.src='/assets/placeholder-restaurant.jpg'"
+          >
+          
+          <!-- Badge owner -->
+          @if (isOwner) {
+            <span class="owner-badge">👑 Il tuo ristorante</span>
+          }
+        </div>
+
+        <div class="header-info">
+          <div class="title-section">
+            <h1>{{ restaurant.name }}</h1>
+            
+            <!-- Rating -->
+            @if (restaurant.averageRating) {
+              <div class="rating">
+                <div class="stars">
+                  @for (star of getStarsArray(restaurant.averageRating); track $index) {
+                    <span class="star filled">★</span>
+                  }
+                  @for (star of getEmptyStarsArray(restaurant.averageRating); track $index) {
+                    <span class="star empty">☆</span>
+                  }
+                </div>
+                <span class="rating-value">{{ formatRating(restaurant.averageRating) }}</span>
+                <span class="reviews-count">({{ restaurant.reviewsCount || 0 }} recensioni)</span>
+              </div>
+            } @else {
+              <div class="rating no-rating">
+                <span>Nessuna recensione ancora</span>
+              </div>
+            }
+          </div>
+
+          <!-- Descrizione -->
+          <p class="description">{{ restaurant.description }}</p>
+
+          <!-- Indirizzo e mappa -->
+          @if (restaurant.location.address) {
+            <div class="location-section">
+              <div class="address">
+                <i class="icon">📍</i>
+                <span>{{ restaurant.location.address }}</span>
+              </div>
+              <div class="location-actions">
+                <button 
+                  class="btn btn-sm btn-outline" 
+                  (click)="copyAddress()"
+                  title="Copia indirizzo"
+                >
+                  📋 Copia
+                </button>
+                <button 
+                  class="btn btn-sm btn-outline" 
+                  (click)="openInMaps()"
+                  title="Apri in Google Maps"
+                >
+                  🗺️ Mappa
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Metadati -->
+          <div class="metadata">
+            @if (restaurant.ownerUsername) {
+              <span class="meta-item">
+                <i class="icon">👤</i>
+                Proprietario: <strong>{{ restaurant.ownerUsername }}</strong>
+              </span>
+            }
+            @if (restaurant.createdAt) {
+              <span class="meta-item">
+                <i class="icon">📅</i>
+                Aggiunto il {{ restaurant.createdAt | date: 'dd/MM/yyyy' }}
+              </span>
+            }
+          </div>
+
+          <!-- Azioni proprietario -->
+          @if (isOwner) {
+            <div class="owner-actions">
+              <button 
+                class="btn btn-primary" 
+                (click)="editRestaurant()"
+              >
+                ✏️ Modifica
+              </button>
+              <button 
+                class="btn btn-danger" 
+                (click)="deleteRestaurant()"
+              >
+                🗑️ Elimina
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Sezione recensioni -->
+      <div class="reviews-section" id="reviews-section">
+        <div class="section-header">
+          <h2>Recensioni</h2>
+          
+          @if (currentUser && !isOwner) {
+            <button 
+              class="btn btn-primary" 
+              (click)="createReview()"
+            >
+              ✍️ Scrivi una recensione
+            </button>
+          } @else if (!currentUser) {
+            <button 
+              class="btn btn-primary" 
+              (click)="createReview()"
+            >
+              🔒 Accedi per recensire
+            </button>
+          }
+        </div>
+
+        <!-- Controlli ordinamento -->
+        @if (hasReviews) {
+          <div class="reviews-controls">
+            <span class="total-count">{{ totalReviews }} recensioni totali</span>
+            
+            <div class="sort-buttons">
+              <button 
+                class="btn btn-sm"
+                [class.active]="sortBy === 'votes'"
+                (click)="changeSortOrder('votes')"
+              >
+                🔥 Più votate
+              </button>
+              <button 
+                class="btn btn-sm"
+                [class.active]="sortBy === 'date'"
+                (click)="changeSortOrder('date')"
+              >
+                🕐 Più recenti
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Lista recensioni -->
+        @if (hasReviews) {
+          <div class="reviews-list">
+            @for (review of reviews; track review.id; let i = $index) {
+              <div class="review-card">
+                <!-- Header recensione -->
+                <div class="review-header">
+                  <div class="user-info">
+                    <span class="username">{{ review.username || 'Utente' }}</span>
+                    <div class="review-rating">
+                      @for (star of getStarsArray(review.rating); track $index) {
+                        <span class="star filled">★</span>
+                      }
+                      @for (star of getEmptyStarsArray(review.rating); track $index) {
+                        <span class="star empty">☆</span>
+                      }
+                    </div>
+                  </div>
+                  
+                  <span class="review-date">
+                    {{ review.createdAt | date: 'dd/MM/yyyy' }}
+                  </span>
+                </div>
+
+                <!-- Contenuto recensione -->
+                <div class="review-content">
+                  <p class="review-text">{{ review.content }}</p>
+                </div>
+
+                <!-- Footer con voti -->
+                <div class="review-footer">
+                  <div class="vote-buttons">
+                    <button 
+                      class="vote-btn upvote"
+                      [class.active]="review.userVote === 1"
+                      (click)="upvoteReview(review.id, i)"
+                      [disabled]="!currentUser"
+                      title="Voto positivo"
+                    >
+                      👍 {{ review.upvotes || 0 }}
+                    </button>
+                    <button 
+                      class="vote-btn downvote"
+                      [class.active]="review.userVote === -1"
+                      (click)="downvoteReview(review.id, i)"
+                      [disabled]="!currentUser"
+                      title="Voto negativo"
+                    >
+                      👎 {{ review.downvotes || 0 }}
+                    </button>
+                  </div>
+
+                  <!-- Azioni proprietario recensione -->
+                  @if (canEditReview(review)) {
+                    <div class="review-actions">
+                      <a 
+                        [routerLink]="['/restaurants', restaurant.id, 'reviews', review.id, 'edit']"
+                        class="btn btn-sm btn-outline"
+                      >
+                        ✏️ Modifica
+                      </a>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Paginazione -->
+          @if (totalPages > 1) {
+            <div class="pagination">
+              <!-- Pulsante Precedente -->
+              <button 
+                class="page-btn"
+                [disabled]="currentPage === 1"
+                (click)="onPageChange(currentPage - 1)"
+              >
+                ‹ Precedente
+              </button>
+
+              <!-- Numeri pagina -->
+              @for (page of pageNumbers; track page) {
+                <button 
+                  class="page-btn"
+                  [class.active]="page === currentPage"
+                  (click)="onPageChange(page)"
+                >
+                  {{ page }}
+                </button>
+              }
+
+              <!-- Pulsante Successivo -->
+              <button 
+                class="page-btn"
+                [disabled]="currentPage === totalPages"
+                (click)="onPageChange(currentPage + 1)"
+              >
+                Successivo ›
+              </button>
+            </div>
+          }
+        } @else {
+          <!-- Nessuna recensione -->
+          <div class="no-reviews">
+            <i class="icon">📝</i>
+            <h3>Nessuna recensione ancora</h3>
+            <p>Sii il primo a recensire questo ristorante!</p>
+            @if (currentUser && !isOwner) {
+              <button 
+                class="btn btn-primary" 
+                (click)="createReview()"
+              >
+                ✍️ Scrivi la prima recensione
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,304 @@
+<!-- Container principale form ristorante -->
+<div class="rest-form-container">
+  <!-- Header -->
+  <div class="form-header">
+    <h1>{{ pageTitle }}</h1>
+    <p class="subtitle">
+      @if (isEditMode) {
+        Modifica le informazioni del tuo ristorante
+      } @else {
+        Crea un nuovo ristorante e condividilo con la community
+      }
+    </p>
+  </div>
+
+  <!-- Spinner di caricamento -->
+  @if (loading) {
+    <app-loading-spinner></app-loading-spinner>
+  }
+
+  <!-- Messaggi -->
+  @if (errorMessage && !loading) {
+    <div class="message error-message">
+      <i class="icon">⚠️</i>
+      <p>{{ errorMessage }}</p>
+    </div>
+  }
+
+  @if (successMessage && !loading) {
+    <div class="message success-message">
+      <i class="icon">✅</i>
+      <p>{{ successMessage }}</p>
+    </div>
+  }
+
+  <!-- Form -->
+  @if (!loading) {
+    <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
+      <!-- Card Informazioni Base -->
+      <div class="form-card">
+        <div class="card-header">
+          <h2>📋 Informazioni Base</h2>
+          <p>Inserisci i dettagli principali del ristorante</p>
+        </div>
+
+        <div class="card-body">
+          <!-- Nome -->
+          <div class="form-group">
+            <label for="name" class="required">Nome del Ristorante</label>
+            <input
+              type="text"
+              id="name"
+              formControlName="name"
+              class="form-control"
+              [class.invalid]="nameControl?.invalid && nameControl?.touched"
+              placeholder="Es: Ristorante Da Mario"
+              maxlength="100"
+            >
+            <div class="field-footer">
+              <div class="validation-messages">
+                @if (nameControl?.invalid && nameControl?.touched) {
+                  @if (nameControl?.errors?.['required']) {
+                    <span class="error-text">Il nome è obbligatorio</span>
+                  }
+                  @if (nameControl?.errors?.['minlength']) {
+                    <span class="error-text">
+                      Minimo 3 caratteri ({{ nameControl?.errors?.['minlength'].actualLength }}/3)
+                    </span>
+                  }
+                }
+              </div>
+              <span class="char-count" [class.warning]="nameLength > 90">
+                {{ nameLength }}/100
+              </span>
+            </div>
+          </div>
+
+          <!-- Descrizione -->
+          <div class="form-group">
+            <label for="description" class="required">Descrizione</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              class="form-control textarea"
+              [class.invalid]="descriptionControl?.invalid && descriptionControl?.touched"
+              placeholder="Descrivi il ristorante: tipo di cucina, specialità, atmosfera..."
+              rows="6"
+              maxlength="1000"
+            ></textarea>
+            <div class="field-footer">
+              <div class="validation-messages">
+                @if (descriptionControl?.invalid && descriptionControl?.touched) {
+                  @if (descriptionControl?.errors?.['required']) {
+                    <span class="error-text">La descrizione è obbligatoria</span>
+                  }
+                  @if (descriptionControl?.errors?.['minlength']) {
+                    <span class="error-text">
+                      Minimo 20 caratteri ({{ descriptionControl?.errors?.['minlength'].actualLength }}/20)
+                    </span>
+                  }
+                }
+              </div>
+              <span class="char-count" [class.warning]="descriptionLength > 900">
+                {{ descriptionLength }}/1000
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Posizione -->
+      <div class="form-card" formGroupName="location">
+        <div class="card-header">
+          <h2>📍 Posizione</h2>
+          <p>Indica dove si trova il ristorante</p>
+        </div>
+
+        <div class="card-body">
+          <!-- Indirizzo -->
+          <div class="form-group">
+            <label for="address" class="required">Indirizzo Completo</label>
+            <div class="input-with-button">
+              <input
+                type="text"
+                id="address"
+                formControlName="address"
+                class="form-control"
+                [class.invalid]="addressControl?.invalid && addressControl?.touched"
+                placeholder="Via, Numero Civico, CAP, Città"
+              >
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="updateCoordinates()"
+                [disabled]="!addressControl?.value || addressControl?.value.length < 5"
+                title="Aggiorna coordinate GPS"
+              >
+                🗺️ GPS
+              </button>
+            </div>
+            @if (addressControl?.invalid && addressControl?.touched) {
+              <div class="validation-messages">
+                @if (addressControl?.errors?.['required']) {
+                  <span class="error-text">L'indirizzo è obbligatorio</span>
+                }
+                @if (addressControl?.errors?.['minlength']) {
+                  <span class="error-text">L'indirizzo deve essere più dettagliato</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Coordinate GPS (readonly) -->
+          <div class="coordinates-group">
+            <div class="form-group half">
+              <label for="lat">Latitudine</label>
+              <input
+                type="number"
+                id="lat"
+                formControlName="lat"
+                class="form-control"
+                readonly
+                step="0.000001"
+              >
+            </div>
+
+            <div class="form-group half">
+              <label for="lng">Longitudine</label>
+              <input
+                type="number"
+                id="lng"
+                formControlName="lng"
+                class="form-control"
+                readonly
+                step="0.000001"
+              >
+            </div>
+          </div>
+
+          <div class="info-box">
+            <i class="icon">💡</i>
+            <p>
+              Le coordinate GPS vengono generate automaticamente dall'indirizzo.
+              Clicca sul pulsante <strong>🗺️ GPS</strong> per aggiornarle.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Immagine -->
+      <div class="form-card">
+        <div class="card-header">
+          <h2>🖼️ Immagine</h2>
+          <p>
+            @if (isEditMode) {
+              Carica una nuova immagine per aggiornare quella esistente (opzionale)
+            } @else {
+              Carica un'immagine del ristorante (obbligatoria)
+            }
+          </p>
+        </div>
+
+        <div class="card-body">
+          <!-- Anteprima immagine -->
+          @if (imagePreview) {
+            <div class="image-preview">
+              <img [src]="imagePreview" alt="Anteprima">
+              <button
+                type="button"
+                class="remove-image-btn"
+                (click)="removeImage()"
+                title="Rimuovi immagine"
+              >
+                ✕
+              </button>
+            </div>
+          }
+
+          <!-- Input file -->
+          <div class="file-input-wrapper">
+            <input
+              type="file"
+              id="restaurant-image"
+              class="file-input"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              (change)="onFileChange($event)"
+            >
+            <label for="restaurant-image" class="file-input-label">
+              <i class="icon">📁</i>
+              <span>
+                @if (imagePreview) {
+                  Cambia immagine
+                } @else {
+                  Seleziona un'immagine
+                }
+              </span>
+            </label>
+          </div>
+
+          <!-- Errore immagine -->
+          @if (imageError) {
+            <div class="validation-messages">
+              <span class="error-text">{{ imageError }}</span>
+            </div>
+          }
+
+          <!-- Info requisiti -->
+          <div class="info-box">
+            <i class="icon">ℹ️</i>
+            <div>
+              <p><strong>Requisiti immagine:</strong></p>
+              <ul>
+                <li>Formati supportati: JPG, PNG, WEBP</li>
+                <li>Dimensione massima: 5MB</li>
+                <li>Risoluzione consigliata: 1200x800 px</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Azioni form -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="cancel()"
+        >
+          ✕ Annulla
+        </button>
+
+        @if (isEditMode || imagePreview) {
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="resetForm()"
+          >
+            🔄 Reset
+          </button>
+        }
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!isFormValid || loading"
+          [class.disabled]="!isFormValid"
+        >
+          @if (loading) {
+            ⏳ Salvataggio...
+          } @else {
+            {{ submitButtonText }}
+          }
+        </button>
+      </div>
+
+      <!-- Indicatore validità form -->
+      @if (!isFormValid && (nameControl?.touched || descriptionControl?.touched)) {
+        <div class="form-status warning">
+          <i class="icon">⚠️</i>
+          <p>Completa tutti i campi obbligatori prima di salvare</p>
+        </div>
+      }
+    </form>
+  }
+</div>

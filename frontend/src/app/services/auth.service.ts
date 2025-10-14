@@ -63,6 +63,55 @@ export class AuthService {
     localStorage.removeItem('user');
     this.userSubject.next(null);
   }
+
+  updateProfile(data: { email?: string; firstName?: string; lastName?: string }): Observable<User> {
+    /* 
+     * Aggiorno le informazioni del profilo utente.
+     * Dopo l'aggiornamento, salvo i nuovi dati nel localStorage
+     * e aggiorno il BehaviorSubject.
+     */
+    return this.http.put<User>(`${this.apiUrl}/profile`, data)
+      .pipe(
+        tap(updatedUser => {
+          /* 
+           * Salvo l'utente aggiornato nel localStorage
+           * e notifico tutti i subscriber
+           */
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          this.userSubject.next(updatedUser);
+        }),
+        catchError(this.handleError)
+      );
+  }
+
+  changePassword(data: { currentPassword: string; newPassword: string }): Observable<any> {
+    /* 
+     * Cambio la password dell'utente verificando prima
+     * che la password corrente sia corretta
+     */
+    return this.http.put(`${this.apiUrl}/change-password`, data)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  deleteAccount(): Observable<any> {
+    /* 
+     * Elimino l'account dell'utente in modo permanente.
+     * Questa operazione rimuove tutti i dati associati all'utente.
+     */
+    return this.http.delete(`${this.apiUrl}/account`)
+      .pipe(
+        tap(() => {
+          /* 
+           * Dopo l'eliminazione, eseguo il logout
+           * per pulire tutti i dati locali
+           */
+          this.logout();
+        }),
+        catchError(this.handleError)
+      );
+  }
   
   private loadUserFromStorage(): void {
     const token = localStorage.getItem('token');
