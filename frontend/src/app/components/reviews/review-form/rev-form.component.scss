@@ -1,0 +1,663 @@
+/* Container principale */
+.review-form-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Header con titolo */
+.form-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 0.75rem 0;
+    animation: slideDown 0.6s ease-out;
+  }
+  
+  .restaurant-name {
+    font-size: 1.25rem;
+    color: #666;
+    margin: 0;
+    animation: slideDown 0.7s ease-out;
+    
+    strong {
+      color: #667eea;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Messaggi di successo/errore */
+.message {
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: slideDown 0.4s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  .icon {
+    font-size: 1.75rem;
+    flex-shrink: 0;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    flex: 1;
+  }
+}
+
+.error-message {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  color: white;
+}
+
+.success-message {
+  background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+  color: white;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 4rem 2rem;
+  animation: fadeIn 0.3s ease-in-out;
+  
+  .spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1.5rem;
+    border: 5px solid rgba(102, 126, 234, 0.2);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  p {
+    font-size: 1.125rem;
+    color: #666;
+    font-weight: 500;
+  }
+}
+
+/* Form principale */
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Card del prompt umoristico */
+.funny-prompt-card {
+  background: linear-gradient(135deg, #ffd93d 0%, #ffb74d 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(255, 183, 77, 0.3);
+  animation: bounceIn 0.7s ease-out;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  
+  .prompt-icon {
+    font-size: 3.5rem;
+    flex-shrink: 0;
+    animation: rotate 4s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .prompt-content {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    
+    .prompt-question {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+    }
+    
+    .prompt-hint {
+      font-size: 1rem;
+      color: #555;
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+}
+
+/* Sezioni del form */
+.form-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .section-header {
+    margin-bottom: 1.5rem;
+    
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    p {
+      font-size: 1rem;
+      color: #666;
+      margin: 0;
+    }
+  }
+}
+
+/* Sezione Rating */
+.rating-section {
+  .rating-input {
+    .stars-container {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin: 1.5rem 0;
+      
+      .star-btn {
+        background: none;
+        border: none;
+        font-size: 3.5rem;
+        cursor: pointer;
+        color: #ddd;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        padding: 0;
+        line-height: 1;
+        position: relative;
+        
+        &:hover,
+        &.hovered {
+          color: #ffd700;
+          transform: scale(1.25) rotate(15deg);
+          filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.5));
+        }
+        
+        &.filled {
+          color: #ffd700;
+          animation: starPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        &:active {
+          transform: scale(1.1);
+        }
+      }
+    }
+    
+    .rating-label {
+      text-align: center;
+      margin: 1.5rem 0 1rem;
+      animation: fadeIn 0.4s ease-in-out;
+      
+      .rating-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-right: 0.75rem;
+      }
+      
+      .rating-text {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #666;
+      }
+    }
+  }
+}
+
+/* Sezione Contenuto */
+.content-section {
+  .content-input {
+    .content-textarea {
+      width: 100%;
+      padding: 1.25rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 200px;
+      transition: all 0.3s ease;
+      line-height: 1.6;
+      
+      &::placeholder {
+        color: #999;
+      }
+      
+      &:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      }
+      
+      &.invalid {
+        border-color: #ff6b6b;
+        
+        &:focus {
+          box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        }
+      }
+    }
+    
+    .character-counter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      
+      .counter {
+        color: #999;
+        font-weight: 500;
+        
+        &.warning {
+          color: #ff9800;
+        }
+        
+        &.danger {
+          color: #ff6b6b;
+          font-weight: 600;
+        }
+      }
+      
+      .hint {
+        color: #667eea;
+        font-weight: 500;
+        font-style: italic;
+      }
+    }
+  }
+  
+  .writing-tips {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #333;
+      margin: 0 0 1rem 0;
+    }
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        padding: 0.5rem 0;
+        color: #555;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        &::before {
+          content: none;
+        }
+      }
+    }
+  }
+}
+
+/* Errori di validazione */
+.validation-error {
+  margin-top: 0.75rem;
+  animation: slideDown 0.3s ease-out;
+  
+  .error-text {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 107, 107, 0.1);
+    border-left: 3px solid #ff6b6b;
+    border-radius: 6px;
+    color: #d32f2f;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
+/* Azioni del form */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f0f0f0;
+  
+  .btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .spinner-small {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
+  
+  .btn-secondary {
+    background: #f5f5f5;
+    color: #666;
+    
+    &:hover:not(:disabled) {
+      background: #e0e0e0;
+    }
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    &.disabled {
+      background: linear-gradient(135deg, #b0b0b0 0%, #888 100%);
+      box-shadow: none;
+    }
+  }
+}
+
+/* Stato del form */
+.form-status {
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  animation: slideDown 0.4s ease-out;
+  
+  .icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    flex: 1;
+  }
+  
+  &.warning {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 183, 77, 0.1) 100%);
+    border-left: 4px solid #ff9800;
+    color: #e65100;
+  }
+}
+
+/* Animazioni */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-30px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes starPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4) rotate(15deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes rotate {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .review-form-container {
+    margin: 1rem auto;
+    padding: 0 0.75rem;
+  }
+  
+  .form-header {
+    margin-bottom: 1.5rem;
+    
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .restaurant-name {
+      font-size: 1.125rem;
+    }
+  }
+  
+  .funny-prompt-card {
+    padding: 1.5rem;
+    flex-direction: column;
+    text-align: center;
+    
+    .prompt-icon {
+      font-size: 3rem;
+    }
+    
+    .prompt-content {
+      .prompt-question {
+        font-size: 1.25rem;
+      }
+      
+      .prompt-hint {
+        font-size: 0.9rem;
+      }
+    }
+  }
+  
+  .form-section {
+    padding: 1.5rem;
+    
+    .section-header {
+      h2 {
+        font-size: 1.25rem;
+      }
+      
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  }
+  
+  .rating-section {
+    .rating-input {
+      .stars-container {
+        gap: 0.5rem;
+        
+        .star-btn {
+          font-size: 2.5rem;
+        }
+      }
+      
+      .rating-label {
+        .rating-number {
+          font-size: 2rem;
+        }
+        
+        .rating-text {
+          font-size: 1.25rem;
+        }
+      }
+    }
+  }
+  
+  .content-section {
+    .content-input {
+      .content-textarea {
+        min-height: 150px;
+        font-size: 0.95rem;
+      }
+      
+      .character-counter {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+    }
+    
+    .writing-tips {
+      padding: 1.25rem;
+      
+      h3 {
+        font-size: 1rem;
+      }
+      
+      ul li {
+        font-size: 0.875rem;
+      }
+    }
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    
+    .btn {
+      width: 100%;
+      justify-content: center;
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+    }
+  }
+}
+
+/* Miglioramenti accessibilità */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

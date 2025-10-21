@@ -1,0 +1,173 @@
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Benvenuto su FAKERESTAURANT 🍽️</h1>
+    <p class="hero-subtitle">La piattaforma satirica per ristoranti immaginari e recensioni creative</p>
+    
+    @if (isLoggedIn) {
+      <div class="hero-actions">
+        <a routerLink="/restaurants" class="btn btn-primary">Esplora Ristoranti</a>
+        @if (currentUser?.isOwner) {
+          <a routerLink="/restaurants/new" class="btn btn-secondary">Aggiungi Ristorante</a>
+        }
+      </div>
+      <p class="welcome-message">👋 Bentornato, <strong>{{ currentUser?.username }}</strong>!</p>
+    } @else {
+      <div class="hero-actions">
+        <a routerLink="/register" class="btn btn-primary">Registrati Ora</a>
+        <a routerLink="/login" class="btn btn-secondary">Accedi</a>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Auth CTA Section (Solo per utenti non autenticati) -->
+@if (!isLoggedIn) {
+  <section class="auth-cta-section">
+    <div class="container">
+      <div class="auth-cta-card">
+        <div class="auth-cta-icon">🔐</div>
+        <h2>Unisciti alla Community!</h2>
+        <p class="auth-cta-description">
+          Accedi o registrati per sbloccare tutte le funzionalità di FakeRestaurant:
+        </p>
+        <ul class="auth-benefits">
+          <li>✨ <strong>Crea ristoranti immaginari</strong> con posizione sulla mappa interattiva</li>
+          <li>✍️ <strong>Scrivi recensioni satiriche</strong> e condividi esperienze surreali</li>
+          <li>👍 <strong>Vota le recensioni</strong> più creative e divertenti</li>
+          <li>🏆 <strong>Costruisci la tua reputazione</strong> nella community</li>
+        </ul>
+        <div class="auth-cta-actions">
+          <a routerLink="/register" class="btn btn-primary btn-large">
+            🚀 Registrati Gratis
+          </a>
+          <a routerLink="/login" class="btn btn-outline btn-large">
+            🔑 Hai già un account? Accedi
+          </a>
+        </div>
+        <p class="auth-cta-note">
+          💡 Puoi comunque esplorare i ristoranti e leggere le recensioni senza registrarti
+        </p>
+      </div>
+    </div>
+  </section>
+}
+
+<!-- Featured Restaurants Section -->
+<section class="featured-section">
+  <div class="container">
+    <h2 class="section-title">Ristoranti in Evidenza</h2>
+    
+    @if (loading) {
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Caricamento ristoranti...</p>
+      </div>
+    }
+    
+    @if (errorMessage) {
+      <div class="error-message">
+        <p>{{ errorMessage }}</p>
+        <button (click)="loadFeaturedRestaurants()" class="btn btn-secondary">Riprova</button>
+      </div>
+    }
+    
+    @if (!loading && !errorMessage && featuredRestaurants.length === 0) {
+      <div class="empty-state">
+        <p>Nessun ristorante disponibile al momento.</p>
+        @if (currentUser?.isOwner) {
+          <a routerLink="/restaurants/new" class="btn btn-primary">Aggiungi il primo ristorante</a>
+        }
+      </div>
+    }
+    
+    @if (!loading && featuredRestaurants.length > 0) {
+      <div class="restaurants-grid">
+        @for (restaurant of featuredRestaurants; track restaurant.id) {
+          <div class="restaurant-card">
+            @if (restaurant.imagePath) {
+              <div class="restaurant-image">
+                <img [src]="'http://localhost:3000/' + restaurant.imagePath" [alt]="restaurant.name">
+              </div>
+            } @else {
+              <div class="restaurant-image-placeholder">
+                <span class="icon">🍽️</span>
+              </div>
+            }
+            
+            <div class="restaurant-info">
+              <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+              
+              @if (restaurant.description) {
+                <p class="restaurant-description">
+                  {{ getTruncatedDescription(restaurant.description, 100) }}
+                </p>
+              }
+              
+              <div class="restaurant-meta">
+                @if (restaurant.averageRating) {
+                  <span class="rating">
+                    ⭐ {{ restaurant.averageRating.toFixed(1) }}
+                  </span>
+                } @else {
+                  <span class="rating-new">Nuovo</span>
+                }
+              </div>
+              
+              <div class="restaurant-actions">
+                <a [routerLink]="['/restaurants', restaurant.id]" class="btn btn-primary btn-small">
+                  Vedi Dettagli
+                </a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      
+      <div class="view-all">
+        <a routerLink="/restaurants" class="btn btn-secondary">Vedi Tutti i Ristoranti</a>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+  <div class="container">
+    <h2 class="section-title">Cosa Puoi Fare</h2>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Esplora</h3>
+        <p>Scopri nuovi ristoranti nella tua zona e leggi recensioni di altri utenti</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">✍️</div>
+        <h3>Recensisci</h3>
+        <p>Condividi la tua esperienza e aiuta altri a scegliere il ristorante perfetto</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">👍</div>
+        <h3>Vota</h3>
+        <p>Vota le recensioni più utili e costruisci una community affidabile</p>
+      </div>
+      
+      @if (currentUser?.isOwner) {
+        <div class="feature-card highlight">
+          <div class="feature-icon">🏪</div>
+          <h3>Gestisci</h3>
+          <p>Aggiungi e gestisci i tuoi ristoranti con facilità</p>
+        </div>
+      } @else {
+        <div class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3>Colleziona</h3>
+          <p>Salva i tuoi ristoranti preferiti e crea la tua lista personale</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

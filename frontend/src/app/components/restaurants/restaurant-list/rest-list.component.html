@@ -16,74 +16,95 @@
     </div>
   </div>
   
-  <div *ngIf="loading">
-    <app-loading-spinner></app-loading-spinner>
-  </div>
-  
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
-  
-  <div *ngIf="!loading && !errorMessage">
-    <!-- No results message -->
-    <div *ngIf="restaurants.length === 0" class="no-results">
-      <h3>Nessun ristorante trovato</h3>
-      <p *ngIf="searchTerm">La ricerca "{{ searchTerm }}" non ha prodotto risultati.</p>
-      <p *ngIf="!searchTerm">Non ci sono ancora ristoranti. Creane uno!</p>
-      <a routerLink="/restaurants/new" class="create-button">Crea Ristorante</a>
+  @if (loading) {
+    <div>
+      <app-loading-spinner></app-loading-spinner>
     </div>
-    
-    <!-- Restaurant grid -->
-    <div *ngIf="restaurants.length > 0" class="restaurant-grid">
-      <div *ngFor="let restaurant of restaurants" class="restaurant-card">
-        <a [routerLink]="['/restaurants', restaurant.id]" class="restaurant-link">
-          <div class="restaurant-image">
-            <img [src]="restaurant.imageUrl || 'assets/images/restaurant-placeholder.jpg'" [alt]="restaurant.name">
-          </div>
-          <div class="restaurant-info">
-            <h3>{{ restaurant.name }}</h3>
-            <p class="restaurant-description">{{ restaurant.description | slice:0:100 }}{{ restaurant.description.length > 100 ? '...' : '' }}</p>
-            <div class="restaurant-meta">
-              <span class="reviews-count">
-                <i class="fas fa-comment"></i> {{ restaurant.reviewsCount || 0 }} recensioni
-              </span>
-              <span class="rating" *ngIf="restaurant.averageRating">
-                <i class="fas fa-star"></i> {{ restaurant.averageRating | number:'1.1-1' }}
-              </span>
+  }
+  
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+  
+  @if (!loading && !errorMessage) {
+    <div>
+      <!-- No results message -->
+      @if (restaurants.length === 0) {
+        <div class="no-results">
+          <h3>Nessun ristorante trovato</h3>
+          @if (searchTerm) {
+            <p>La ricerca "{{ searchTerm }}" non ha prodotto risultati.</p>
+          }
+          @if (!searchTerm) {
+            <p>Non ci sono ancora ristoranti. Creane uno!</p>
+          }
+          <a routerLink="/restaurants/new" class="create-button">Crea Ristorante</a>
+        </div>
+      }
+      
+      <!-- Restaurant grid -->
+      @if (restaurants.length > 0) {
+        <div class="restaurant-grid">
+          @for (restaurant of restaurants; track restaurant.id) {
+            <div class="restaurant-card">
+              <a [routerLink]="['/restaurants', restaurant.id]" class="restaurant-link">
+                <div class="restaurant-image">
+                  <img [src]="restaurant.imageUrl || 'assets/images/restaurant-placeholder.jpg'" [alt]="restaurant.name">
+                </div>
+                <div class="restaurant-info">
+                  <h3>{{ restaurant.name }}</h3>
+                  <p class="restaurant-description">{{ restaurant.description | slice:0:100 }}{{ restaurant.description.length > 100 ? '...' : '' }}</p>
+                  <div class="restaurant-meta">
+                    <span class="reviews-count">
+                      <i class="fas fa-comment"></i> {{ restaurant.reviewsCount || 0 }} recensioni
+                    </span>
+                    @if (restaurant.averageRating) {
+                      <span class="rating">
+                        <i class="fas fa-star"></i> {{ restaurant.averageRating | number:'1.1-1' }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </a>
             </div>
-          </div>
-        </a>
-      </div>
-    </div>
-    
-    <!-- Pagination -->
-    <div *ngIf="totalPages > 1" class="pagination">
-      <button 
-        class="pagination-button" 
-        [disabled]="currentPage === 1"
-        (click)="prevPage()"
-      >
-        <i class="fas fa-chevron-left"></i>
-      </button>
+          }
+        </div>
+      }
       
-      <button 
-        *ngFor="let page of pageNumbers" 
-        class="pagination-button" 
-        [class.active]="page === currentPage"
-        (click)="onPageChange(page)"
-      >
-        {{ page }}
-      </button>
-      
-      <button 
-        class="pagination-button" 
-        [disabled]="currentPage === totalPages"
-        (click)="nextPage()"
-      >
-        <i class="fas fa-chevron-right"></i>
-      </button>
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+        <div class="pagination">
+          <button 
+            class="pagination-button" 
+            [disabled]="currentPage === 1"
+            (click)="prevPage()"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          
+          @for (page of pageNumbers; track page) {
+            <button 
+              class="pagination-button" 
+              [class.active]="page === currentPage"
+              (click)="onPageChange(page)"
+            >
+              {{ page }}
+            </button>
+          }
+          
+          <button 
+            class="pagination-button" 
+            [disabled]="currentPage === totalPages"
+            (click)="nextPage()"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      }
     </div>
-  </div>
+  }
   
   <!-- Floating action button to create new restaurant -->
   <div class="fab-container">

@@ -3,12 +3,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Vote, VoteType, CreateVoteDto } from '../models/vote.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VoteService {
-  private apiUrl = 'http://localhost:3000/api/votes';
+  private apiUrl = `${environment.apiUrl}/votes`;
   
   constructor(private http: HttpClient) {}
   

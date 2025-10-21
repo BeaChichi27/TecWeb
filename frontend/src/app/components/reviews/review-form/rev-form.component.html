@@ -1,0 +1,217 @@
+<!-- Container form recensione -->
+<div class="review-form-container">
+  <!-- Header -->
+  <div class="form-header">
+    <h1>
+      @if (isEditMode) {
+        ✏️ Modifica la tua recensione
+      } @else {
+        ✍️ Scrivi una recensione
+      }
+    </h1>
+    
+    @if (restaurantName) {
+      <p class="restaurant-name">
+        per <strong>{{ restaurantName }}</strong>
+      </p>
+    }
+  </div>
+
+  <!-- Messaggi -->
+  @if (errorMessage && !loading) {
+    <div class="message error-message">
+      <i class="icon">⚠️</i>
+      <p>{{ errorMessage }}</p>
+    </div>
+  }
+
+  @if (successMessage && !loading) {
+    <div class="message success-message">
+      <i class="icon">✅</i>
+      <p>{{ successMessage }}</p>
+    </div>
+  }
+
+  <!-- Spinner di caricamento -->
+  @if (loading) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>{{ isEditMode ? 'Aggiornamento in corso...' : 'Pubblicazione in corso...' }}</p>
+    </div>
+  }
+
+  <!-- Form -->
+  @if (!loading) {
+    <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()" class="review-form">
+      
+      <!-- Prompt Umoristico -->
+      <div class="funny-prompt-card">
+        <div class="prompt-icon">🤔</div>
+        <div class="prompt-content">
+          <p class="prompt-question">{{ randomPrompt }}</p>
+          <p class="prompt-hint">Raccontaci la tua esperienza in modo creativo!</p>
+        </div>
+      </div>
+
+      <!-- Sezione Rating -->
+      <div class="form-section rating-section">
+        <div class="section-header">
+          <h2>⭐ Valutazione</h2>
+          <p>Quante stelle merita questo ristorante?</p>
+        </div>
+
+        <div class="rating-input">
+          <div class="stars-container">
+            @for (star of ratingArray; track star) {
+              <button
+                type="button"
+                class="star-btn"
+                [class.filled]="(ratingControl?.value ?? 0) >= star"
+                [class.hovered]="hoveredStar >= star"
+                (click)="setRating(star)"
+                (mouseenter)="hoveredStar = star"
+                (mouseleave)="hoveredStar = 0"
+                [title]="star + ' stelle'"
+              >
+                @if ((ratingControl?.value ?? 0) >= star) {
+                  ★
+                } @else {
+                  ☆
+                }
+              </button>
+            }
+          </div>
+
+          <!-- Etichetta rating -->
+          @if (ratingControl?.value) {
+            <div class="rating-label">
+              <span class="rating-number">{{ ratingControl?.value }}</span>
+              <span class="rating-text">
+                @switch (ratingControl?.value) {
+                  @case (1) { Pessimo 😞 }
+                  @case (2) { Scarso 😕 }
+                  @case (3) { Nella media 😐 }
+                  @case (4) { Buono 😊 }
+                  @case (5) { Eccellente! 🤩 }
+                }
+              </span>
+            </div>
+          }
+
+          <!-- Errore rating -->
+          @if (ratingControl?.invalid && ratingControl?.touched) {
+            <div class="validation-error">
+              @if (ratingControl?.errors?.['required']) {
+                <span class="error-text">⚠️ Seleziona una valutazione</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Sezione Contenuto -->
+      <div class="form-section content-section">
+        <div class="section-header">
+          <h2>💬 La tua recensione</h2>
+          <p>Condividi la tua esperienza (minimo 20 caratteri)</p>
+        </div>
+
+        <div class="content-input">
+          <textarea
+            id="content"
+            formControlName="content"
+            class="content-textarea"
+            [class.invalid]="contentControl?.invalid && contentControl?.touched"
+            placeholder="Racconta la tua esperienza... Cos'è successo? Il cibo era buono? Il servizio impeccabile? Qualcosa di divertente o particolare?"
+            rows="8"
+            maxlength="1000"
+          ></textarea>
+
+          <!-- Contatore caratteri -->
+          <div class="character-counter">
+            <span 
+              class="counter"
+              [class.warning]="contentControl?.value?.length > 900"
+              [class.danger]="contentControl?.value?.length >= 1000"
+            >
+              {{ contentControl?.value?.length || 0 }}/1000 caratteri
+            </span>
+            
+            @if (contentControl?.value?.length < 20 && contentControl?.value?.length > 0) {
+              <span class="hint">Ancora {{ 20 - contentControl?.value?.length }} caratteri per raggiungere il minimo</span>
+            }
+          </div>
+
+          <!-- Errori contenuto -->
+          @if (contentControl?.invalid && contentControl?.touched) {
+            <div class="validation-error">
+              @if (contentControl?.errors?.['required']) {
+                <span class="error-text">⚠️ La recensione non può essere vuota</span>
+              }
+              @if (contentControl?.errors?.['minlength']) {
+                <span class="error-text">
+                  ⚠️ Scrivi almeno 20 caratteri ({{ contentControl?.errors?.['minlength'].actualLength }}/20)
+                </span>
+              }
+              @if (contentControl?.errors?.['maxlength']) {
+                <span class="error-text">
+                  ⚠️ Massimo 1000 caratteri
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Suggerimenti -->
+        <div class="writing-tips">
+          <h3>💡 Suggerimenti per scrivere una buona recensione:</h3>
+          <ul>
+            <li>🍝 Descrivi i piatti che hai provato</li>
+            <li>👨‍🍳 Racconta del servizio e dell'atmosfera</li>
+            <li>💰 Menziona il rapporto qualità-prezzo</li>
+            <li>🎭 Sii onesto ma rispettoso</li>
+            <li>😄 Aggiungi un tocco di umorismo se vuoi!</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Azioni form -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="goBack()"
+          [disabled]="loading"
+        >
+          ← Annulla
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="reviewForm.invalid || loading"
+          [class.disabled]="reviewForm.invalid"
+        >
+          @if (loading) {
+            <span class="spinner-small"></span>
+            {{ isEditMode ? 'Aggiornamento...' : 'Pubblicazione...' }}
+          } @else {
+            @if (isEditMode) {
+              💾 Salva modifiche
+            } @else {
+              📤 Pubblica recensione
+            }
+          }
+        </button>
+      </div>
+
+      <!-- Stato form -->
+      @if (reviewForm.invalid && (contentControl?.touched || ratingControl?.touched)) {
+        <div class="form-status warning">
+          <i class="icon">⚠️</i>
+          <p>Completa tutti i campi obbligatori prima di pubblicare</p>
+        </div>
+      }
+    </form>
+  }
+</div>

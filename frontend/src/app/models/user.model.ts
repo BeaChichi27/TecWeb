@@ -2,6 +2,7 @@ export interface User {
   id: number;
   username: string;
   email?: string;
+  isOwner?: boolean;
   createdAt?: string;
   updatedAt?: string;
   restaurantsCount?: number;

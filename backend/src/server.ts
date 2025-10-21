@@ -3,6 +3,7 @@ import { connect } from './database';
 import authRoutes from './routes/auth';
 import restaurantRoutes from './routes/restaurants';
 import reviewRoutes from './routes/reviews';
+import voteRoutes from './routes/votes';
 import path from 'path';
 import cors from 'cors'; // Assicurati che cors sia importato
 
@@ -68,6 +69,10 @@ console.log('   ✅ Route ristoranti: /api/restaurants/*');
 
 app.use('/api/reviews', reviewRoutes);
 console.log('   ✅ Route recensioni: /api/reviews/*');
+
+
+app.use('/api/votes', voteRoutes);
+console.log('   ✅ Route voti: /api/votes/*');
 
 
 app.get('/api/health', (req, res) => {

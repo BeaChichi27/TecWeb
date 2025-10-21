@@ -3,12 +3,13 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Review, CreateReviewDto, UpdateReviewDto } from '../models/review.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReviewService {
-  private apiUrl = 'http://localhost:3000/api/reviews';
+  private apiUrl = `${environment.apiUrl}/reviews`;
   
   constructor(private http: HttpClient) {}
   

@@ -184,7 +184,7 @@ export class RestListComponent implements OnInit, OnDestroy {
         this.searchTerm
       ).subscribe({
         next: (response) => {
-          this.restaurants = response.data || [];
+          this.restaurants = response.restaurants || [];
           this.totalRestaurants = response.total || 0;
           this.loading = false;
         },

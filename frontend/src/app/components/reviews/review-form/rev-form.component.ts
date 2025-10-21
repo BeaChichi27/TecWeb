@@ -6,7 +6,6 @@ import { Review, CreateReviewDto, UpdateReviewDto } from '../../../models/review
 import { ReviewService } from '../../../services/review.service';
 import { AuthService } from '../../../services/auth.service';
 import { RestaurantService } from '../../../services/restaurant.service';
-import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading';
 import { switchMap, catchError, of } from 'rxjs';
 
 @Component({
@@ -15,8 +14,7 @@ import { switchMap, catchError, of } from 'rxjs';
   imports: [
     CommonModule, 
     ReactiveFormsModule,
-    RouterModule,
-    LoadingSpinnerComponent
+    RouterModule
   ],
   templateUrl: './rev-form.component.html',
   styleUrls: ['./rev-form.component.scss']
@@ -34,6 +32,7 @@ export class RevFormComponent implements OnInit {
   successMessage = '';
   restaurantName = '';
   maxRating = 5; // Per generare l'array di stelle
+  hoveredStar = 0; // Per effetto hover sulle stelle
   
   // Suggerimenti divertenti per ispirare recensioni umoristiche
   funnyPrompts = [
@@ -303,5 +302,23 @@ export class RevFormComponent implements OnInit {
    */
   get ratingArray(): number[] {
     return Array(this.maxRating).fill(0).map((_, index) => index + 1);
+  }
+  
+  /* 
+   * Gestisco il click sul pulsante Annulla tornando alla pagina precedente.
+   * Se siamo in modalità embedded, questo pulsante potrebbe essere gestito
+   * dal componente genitore tramite un @Output.
+   */
+  goBack(): void {
+    // Se c'è un restaurantId, torna al dettaglio del ristorante
+    if (this.restaurantId) {
+      this.router.navigate(['/restaurants', this.restaurantId]);
+    } else if (this.reviewId) {
+      // Se stiamo modificando, torna al dettaglio della recensione/ristorante
+      this.router.navigate(['/profile'], { fragment: 'reviews' });
+    } else {
+      // Altrimenti torna indietro di una pagina
+      window.history.back();
+    }
   }
 }

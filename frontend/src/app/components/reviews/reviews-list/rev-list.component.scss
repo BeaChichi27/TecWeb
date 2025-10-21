@@ -1,0 +1,569 @@
+/* 
+ * REVIEWS LIST COMPONENT
+ * Componente riutilizzabile per la visualizzazione delle recensioni
+ * Design coerente con gradiente viola #667eea → #764ba2
+ */
+
+.reviews-list-container {
+  width: 100%;
+}
+
+/* ======================
+   MESSAGGI
+   ====================== */
+
+.error-message {
+  padding: 1rem 1.5rem;
+  background: #fee;
+  border: 2px solid #fcc;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.3s ease;
+
+  .icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  p {
+    flex: 1;
+    margin: 0;
+    color: #c33;
+    font-weight: 500;
+  }
+}
+
+/* ======================
+   LOADING SPINNER
+   ====================== */
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  p {
+    color: #6b7280;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ======================
+   HEADER RECENSIONI
+   ====================== */
+
+.reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .reviews-count {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+
+    .count {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .label {
+      font-size: 1rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+  }
+
+  .sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+
+    .sort-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .sort-btn {
+      padding: 0.5rem 1rem;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #4a5568;
+
+      &:hover {
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateY(-2px);
+      }
+
+      &.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+    }
+  }
+}
+
+/* ======================
+   LISTA RECENSIONI
+   ====================== */
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-card {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.3s ease;
+
+  &:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .owner-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+}
+
+/* Header recensione */
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .username {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .review-date {
+        font-size: 0.85rem;
+        color: #9ca3af;
+      }
+    }
+  }
+
+  .review-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .star {
+      font-size: 1.3rem;
+
+      &.filled {
+        color: #fbbf24;
+      }
+
+      &.empty {
+        color: #d1d5db;
+      }
+    }
+
+    .rating-number {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #667eea;
+      margin-left: 0.25rem;
+    }
+  }
+}
+
+/* Contenuto recensione */
+.review-content {
+  margin: 1rem 0;
+
+  .review-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #4a5568;
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+
+    &.expanded {
+      display: block;
+      -webkit-line-clamp: unset;
+      line-clamp: unset;
+    }
+  }
+
+  .expand-btn {
+    margin-top: 0.5rem;
+    background: none;
+    border: none;
+    color: #667eea;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+  }
+}
+
+/* Footer con voti e azioni */
+.review-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .vote-buttons {
+    display: flex;
+    gap: 0.75rem;
+
+    .vote-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      .icon {
+        font-size: 1.1rem;
+      }
+
+      .count {
+        font-weight: 600;
+      }
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &.upvote {
+        &:hover:not(:disabled) {
+          border-color: #10b981;
+          color: #10b981;
+        }
+
+        &.active {
+          background: #10b981;
+          color: white;
+          border-color: #10b981;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+      }
+
+      &.downvote {
+        &:hover:not(:disabled) {
+          border-color: #ef4444;
+          color: #ef4444;
+        }
+
+        &.active {
+          background: #ef4444;
+          color: white;
+          border-color: #ef4444;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+      }
+    }
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 0.5rem;
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: #4a5568;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &.edit {
+        &:hover {
+          border-color: #667eea;
+          color: #667eea;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+      }
+
+      &.delete {
+        &:hover:not(:disabled) {
+          border-color: #ef4444;
+          color: #ef4444;
+          background: #fef2f2;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+      }
+    }
+  }
+}
+
+/* ======================
+   PAGINAZIONE
+   ====================== */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+
+  .page-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0.5rem 1rem;
+    border: 2px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #4a5568;
+
+    &:hover:not(:disabled) {
+      border-color: #667eea;
+      color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    &.nav-btn {
+      padding: 0.5rem 1.25rem;
+    }
+  }
+}
+
+/* ======================
+   NESSUNA RECENSIONE
+   ====================== */
+
+.no-reviews {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #f7fafc;
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+
+  .icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 1rem 0;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0;
+  }
+}
+
+/* ======================
+   ANIMAZIONI
+   ====================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ======================
+   RESPONSIVE
+   ====================== */
+
+@media (max-width: 767px) {
+  .reviews-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .sort-controls {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  .review-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .review-rating {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .review-footer {
+    flex-direction: column;
+    align-items: stretch;
+
+    .vote-buttons,
+    .review-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  .review-card {
+    .owner-badge {
+      position: static;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+  }
+}

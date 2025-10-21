@@ -5,15 +5,13 @@ import { AuthService } from '../../services/auth.service';
 import { RestaurantService } from '../../services/restaurant.service';
 import { Restaurant } from '../../models/restaurant.model';
 import { User } from '../../models/user.model';
-import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
-    LoadingSpinnerComponent
+    RouterModule
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
@@ -23,11 +21,15 @@ export class HomeComponent implements OnInit {
   featuredRestaurants: Restaurant[] = [];
   loading = false;
   errorMessage = '';
+  cookiesEnabled = true;
   
   constructor(
     private authService: AuthService,
     private restaurantService: RestaurantService
-  ) {}
+  ) {
+    // Verifica se i cookie sono abilitati
+    this.checkCookiesEnabled();
+  }
   
   /* 
    * Quando viene inizializzato, verifica se l'utente è già autenticato 
@@ -51,13 +53,13 @@ export class HomeComponent implements OnInit {
   
   /* 
    * Carico una selezione di ristoranti in evidenza da mostrare nella home page.
-   * Utilizzo il RestaurantService per ottenere i ristoranti con le valutazioni 
-   * più alte, limitando il risultato a pochi elementi per non appesantire la pagina.
+   * Utilizzo il RestaurantService per ottenere i primi ristoranti disponibili,
+   * limitando il risultato a 6 elementi per la visualizzazione in griglia.
    */
-  private loadFeaturedRestaurants(): void {
+  loadFeaturedRestaurants(): void {
     this.loading = true;
     
-    this.restaurantService.getRestaurants(1, 3, undefined, 'rating')
+    this.restaurantService.getRestaurants(1, 6)
       .subscribe({
         next: (response) => {
           this.featuredRestaurants = response.restaurants;
@@ -90,5 +92,21 @@ export class HomeComponent implements OnInit {
     }
     
     return description.substring(0, maxLength) + '...';
+  }
+
+  /**
+   * Verifica se i cookie sono abilitati nel browser
+   * Necessario per il corretto funzionamento dell'autenticazione
+   */
+  private checkCookiesEnabled(): void {
+    try {
+      // Tenta di impostare un cookie di test
+      document.cookie = 'cookieTest=1; SameSite=Strict';
+      this.cookiesEnabled = document.cookie.indexOf('cookieTest') !== -1;
+      // Rimuove il cookie di test
+      document.cookie = 'cookieTest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT; SameSite=Strict';
+    } catch (e) {
+      this.cookiesEnabled = false;
+    }
   }
 }

@@ -1,0 +1,138 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Logo e Brand -->
+    <a routerLink="/" class="navbar-brand" (click)="closeMenu()">
+      <span class="logo-icon">🍽️</span>
+      <span class="brand-name">FAKERESTAURANT</span>
+    </a>
+
+    <!-- Menu Toggle Button (Mobile) -->
+    <button 
+      class="menu-toggle-button" 
+      (click)="toggleMenu()"
+      [class.active]="isMenuOpen"
+      aria-label="Toggle menu"
+    >
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+
+    <!-- Navigation Links -->
+    <div class="navbar-menu" [class.open]="isMenuOpen">
+      <!-- Link comuni a tutti -->
+      <a 
+        routerLink="/" 
+        routerLinkActive="active" 
+        [routerLinkActiveOptions]="{exact: true}"
+        class="nav-link"
+        (click)="closeMenu()"
+      >
+        <span class="nav-icon">🏠</span>
+        Home
+      </a>
+
+      <a 
+        routerLink="/restaurants" 
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="closeMenu()"
+      >
+        <span class="nav-icon">🔍</span>
+        Esplora
+      </a>
+
+      <!-- Link per utenti NON autenticati -->
+      @if (!isLoggedIn) {
+        <a 
+          routerLink="/register" 
+          routerLinkActive="active"
+          class="nav-link"
+          (click)="closeMenu()"
+        >
+          <span class="nav-icon">✨</span>
+          Registrati
+        </a>
+
+        <a 
+          routerLink="/login" 
+          routerLinkActive="active"
+          class="nav-link nav-link-primary"
+          (click)="closeMenu()"
+        >
+          <span class="nav-icon">🔑</span>
+          Accedi
+        </a>
+      }
+
+      <!-- Link per utenti AUTENTICATI -->
+      @if (isLoggedIn) {
+        <!-- Se è un proprietario, mostra link per aggiungere ristorante -->
+        @if (currentUser?.isOwner) {
+          <a 
+            routerLink="/restaurants/new" 
+            routerLinkActive="active"
+            class="nav-link nav-link-highlight"
+            (click)="closeMenu()"
+          >
+            <span class="nav-icon">➕</span>
+            Aggiungi Ristorante
+          </a>
+        }
+
+        <!-- Dropdown Menu Utente -->
+        <div class="user-menu-wrapper">
+          <button class="user-menu-toggle" (click)="toggleUserDropdown()">
+            <span class="user-avatar">👤</span>
+            <span class="user-name">{{ currentUser?.username }}</span>
+            <span class="dropdown-arrow">▼</span>
+          </button>
+
+          <div class="user-dropdown" [class.open]="isUserDropdownOpen">
+            <a 
+              routerLink="/profile" 
+              routerLinkActive="active"
+              class="dropdown-link"
+              (click)="closeMenu()"
+            >
+              <span class="dropdown-icon">👤</span>
+              Il Mio Profilo
+            </a>
+
+            @if (currentUser?.isOwner) {
+              <a 
+                routerLink="/my-restaurants" 
+                routerLinkActive="active"
+                class="dropdown-link"
+                (click)="closeMenu()"
+              >
+                <span class="dropdown-icon">🏪</span>
+                I Miei Ristoranti
+              </a>
+            }
+
+            <a 
+              routerLink="/my-reviews" 
+              routerLinkActive="active"
+              class="dropdown-link"
+              (click)="closeMenu()"
+            >
+              <span class="dropdown-icon">✍️</span>
+              Le Mie Recensioni
+            </a>
+
+            <hr class="dropdown-divider">
+
+            <button 
+              class="dropdown-link logout-button" 
+              (click)="logout()"
+            >
+              <span class="dropdown-icon">🚪</span>
+              Logout
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</nav>

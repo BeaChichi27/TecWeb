@@ -88,8 +88,7 @@ export class ProfileComponent implements OnInit {
         this.currentUser?.email,
         [Validators.required, Validators.email]
       ],
-      firstName: [this.currentUser?.firstName || ''],
-      lastName: [this.currentUser?.lastName || '']
+      userName: [this.currentUser?.username || '']
     });
     
     // Form per cambiare la password
@@ -170,8 +169,7 @@ export class ProfileComponent implements OnInit {
     this.isEditingProfile = false;
     this.profileForm.patchValue({
       email: this.currentUser?.email,
-      firstName: this.currentUser?.firstName || '',
-      lastName: this.currentUser?.lastName || ''
+      userName: [this.currentUser?.username || '']
     });
     this.errorMessage = '';
     this.successMessage = '';

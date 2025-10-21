@@ -16,6 +16,7 @@ import { User } from '../../models/user.model';
 })
 export class NavbarComponent implements OnInit {
   isMenuOpen = false;
+  isUserDropdownOpen = false;
   currentUser: User | null = null;
   
   constructor(
@@ -64,9 +65,17 @@ export class NavbarComponent implements OnInit {
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
+
+  /* 
+   * Alterno lo stato del dropdown del menu utente.
+   * Questo metodo viene chiamato quando l'utente clicca sull'avatar/nome.
+   */
+  toggleUserDropdown(): void {
+    this.isUserDropdownOpen = !this.isUserDropdownOpen;
+  }
   
   /* 
-   * Chiudo il menu mobile quando l'utente clicca al di fuori di esso.
+   * Chiudo il menu mobile e il dropdown utente quando l'utente clicca al di fuori.
    * Utilizzo @HostListener per ascoltare gli eventi di clic sul documento.
    */
   @HostListener('document:click', ['$event'])
@@ -74,15 +83,25 @@ export class NavbarComponent implements OnInit {
     const target = event.target as HTMLElement;
     const navbar = document.querySelector('.navbar-container');
     const menuButton = document.querySelector('.menu-toggle-button');
+    const userMenuToggle = document.querySelector('.user-menu-toggle');
+    const userDropdown = document.querySelector('.user-dropdown');
     
-    // Non chiudere il menu se il clic è sul pulsante di toggle o è già gestito
-    if (menuButton?.contains(target) || !this.isMenuOpen) {
-      return;
+    // Gestisci il menu mobile
+    if (menuButton?.contains(target)) {
+      return; // Il toggle è gestito dal click handler del bottone
     }
     
-    // Chiudi il menu se il clic è fuori dalla navbar
-    if (navbar && !navbar.contains(target)) {
+    if (this.isMenuOpen && navbar && !navbar.contains(target)) {
       this.isMenuOpen = false;
+    }
+    
+    // Gestisci il dropdown utente
+    if (userMenuToggle?.contains(target)) {
+      return; // Il toggle è gestito dal click handler del bottone
+    }
+    
+    if (this.isUserDropdownOpen && userDropdown && !userDropdown.contains(target)) {
+      this.isUserDropdownOpen = false;
     }
   }
   
@@ -93,5 +112,6 @@ export class NavbarComponent implements OnInit {
    */
   closeMenu(): void {
     this.isMenuOpen = false;
+    this.isUserDropdownOpen = false;
   }
 }

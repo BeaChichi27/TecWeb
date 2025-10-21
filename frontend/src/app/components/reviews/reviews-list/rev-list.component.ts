@@ -6,9 +6,7 @@ import { Review } from '../../../models/review.model';
 import { ReviewService } from '../../../services/review.service';
 import { AuthService } from '../../../services/auth.service';
 import { VoteService } from '../../../services/vote.service';
-import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading';
 import { catchError, of } from 'rxjs';
-import { VoteType } from '../../../models/vote.model';
 
 @Component({
   selector: 'app-rev-list',
@@ -16,18 +14,23 @@ import { VoteType } from '../../../models/vote.model';
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule,
-    LoadingSpinnerComponent
+    FormsModule
   ],
   templateUrl: './rev-list.component.html',
   styleUrls: ['./rev-list.component.scss']
 })
 export class RevListComponent implements OnInit {
-  // Input per permettere l'uso del componente sia standalone che integrato
+  /* 
+   * Input per permettere l'uso del componente in due modalità:
+   * 1. Autonomo: passa restaurantId e il componente carica le recensioni
+   * 2. Integrato: passa reviews[] direttamente (es. da parent component)
+   */
   @Input() restaurantId?: number;
+  @Input() reviews?: Review[];
   @Output() reviewDeleted = new EventEmitter<number>();
+  @Output() reviewVoted = new EventEmitter<number>();
   
-  reviews: Review[] = [];
+  internalReviews: Review[] = [];
   loading = false;
   errorMessage = '';
   
@@ -48,15 +51,25 @@ export class RevListComponent implements OnInit {
   ) {}
   
   /* 
-   * All'inizializzazione, carico le recensioni per il ristorante specificato.
-   * Se non viene fornito un restaurantId tramite input, controllo i parametri della URL.
-   * Imposto i parametri di paginazione e ordinamento e carico i dati dal server.
+   * All'inizializzazione, decido quale modalità usare:
+   * - Se reviews[] è fornito tramite @Input, lo uso direttamente
+   * - Altrimenti, se restaurantId è fornito, carico le recensioni dal server
+   * Questo rende il componente flessibile e riutilizzabile.
    */
   ngOnInit(): void {
-    if (this.restaurantId) {
+    if (this.reviews && this.reviews.length > 0) {
+      /* 
+       * Modalità INTEGRATO: uso le recensioni passate dal parent
+       */
+      this.internalReviews = this.reviews;
+      this.totalReviews = this.reviews.length;
+    } else if (this.restaurantId) {
+      /* 
+       * Modalità AUTONOMO: carico le recensioni dal server
+       */
       this.loadReviews();
     } else {
-      this.errorMessage = 'Nessun ristorante specificato per le recensioni.';
+      this.errorMessage = 'Nessun ristorante o recensioni specificate.';
     }
   }
   
@@ -66,11 +79,16 @@ export class RevListComponent implements OnInit {
    * Aggiorno la lista delle recensioni e il conteggio totale per la paginazione.
    */
   loadReviews(): void {
+    if (!this.restaurantId) {
+      this.errorMessage = 'Nessun ristorante specificato.';
+      return;
+    }
+    
     this.loading = true;
     this.errorMessage = '';
     
     this.reviewService.getReviewsByRestaurant(
-      this.restaurantId as number,
+      this.restaurantId,
       this.currentPage,
       this.reviewsPerPage,
       this.sortBy
@@ -83,7 +101,7 @@ export class RevListComponent implements OnInit {
     ).subscribe(response => {
       this.loading = false;
       if (response) {
-        this.reviews = response.reviews;
+        this.internalReviews = response.reviews;
         this.totalReviews = response.total;
       }
     });
@@ -125,11 +143,12 @@ export class RevListComponent implements OnInit {
   }
   
   /* 
-   * Aggiungo un voto positivo o negativo alla recensione.
+   * Aggiungo un voto positivo (upvote) a una recensione.
    * Prima verifico che l'utente sia autenticato, poi invio la richiesta
-   * al server e aggiorno i dati locali per mostrare il risultato immediatamente.
+   * al server. Dopo la votazione, ricarico le recensioni per aggiornare
+   * i conteggi dei voti.
    */
-  voteReview(reviewId: number, isUpvote: boolean): void {
+  upvoteReview(reviewId: number, index: number): void {
     if (!this.authService.isLoggedIn) {
       this.errorMessage = 'Devi essere autenticato per votare una recensione.';
       return;
@@ -138,9 +157,9 @@ export class RevListComponent implements OnInit {
     if (this.voteInProgress) return; // Previene doppi clic
     
     this.voteInProgress = true;
+    this.errorMessage = '';
     
-    const voteType = isUpvote ? VoteType.UPVOTE : VoteType.DOWNVOTE;
-    this.voteService.voteReview(reviewId, voteType).pipe(
+    this.voteService.upvoteReview(reviewId).pipe(
       catchError(error => {
         this.errorMessage = error;
         this.voteInProgress = false;
@@ -150,16 +169,55 @@ export class RevListComponent implements OnInit {
       this.voteInProgress = false;
       
       if (result) {
-        // Aggiorna la recensione votata con i nuovi conteggi
-        const reviewIndex = this.reviews.findIndex(r => r.id === reviewId);
-        if (reviewIndex !== -1) {
-          this.reviews[reviewIndex] = {
-            ...this.reviews[reviewIndex],
-            upvotes: result.upvotes,
-            downvotes: result.downvotes,
-            userVote: result.userVote
-          };
-        }
+        /* 
+         * Ricarico le recensioni per aggiornare i conteggi.
+         * In alternativa, potremmo aggiornare solo la recensione specifica
+         * se il backend restituisse i nuovi conteggi.
+         */
+        this.loadReviews();
+        
+        /* 
+         * Emetto un evento per notificare il parent component
+         */
+        this.reviewVoted.emit(reviewId);
+      }
+    });
+  }
+  
+  /* 
+   * Aggiungo un voto negativo (downvote) a una recensione.
+   * Funziona in modo analogo a upvoteReview.
+   */
+  downvoteReview(reviewId: number, index: number): void {
+    if (!this.authService.isLoggedIn) {
+      this.errorMessage = 'Devi essere autenticato per votare una recensione.';
+      return;
+    }
+    
+    if (this.voteInProgress) return; // Previene doppi clic
+    
+    this.voteInProgress = true;
+    this.errorMessage = '';
+    
+    this.voteService.downvoteReview(reviewId).pipe(
+      catchError(error => {
+        this.errorMessage = error;
+        this.voteInProgress = false;
+        return of(null);
+      })
+    ).subscribe(result => {
+      this.voteInProgress = false;
+      
+      if (result) {
+        /* 
+         * Ricarico le recensioni per aggiornare i conteggi
+         */
+        this.loadReviews();
+        
+        /* 
+         * Emetto un evento per notificare il parent component
+         */
+        this.reviewVoted.emit(reviewId);
       }
     });
   }
@@ -175,6 +233,7 @@ export class RevListComponent implements OnInit {
     }
     
     this.loading = true;
+    this.errorMessage = '';
     
     this.reviewService.deleteReview(reviewId).pipe(
       catchError(error => {
@@ -186,19 +245,27 @@ export class RevListComponent implements OnInit {
       this.loading = false;
       
       if (success) {
-        // Rimuovi la recensione dalla lista
-        this.reviews = this.reviews.filter(r => r.id !== reviewId);
+        /* 
+         * Rimuovo la recensione dalla lista locale
+         */
+        this.internalReviews = this.internalReviews.filter(r => r.id !== reviewId);
         this.totalReviews--;
         
-        // Se la pagina è vuota e non è la prima, vai alla pagina precedente
-        if (this.reviews.length === 0 && this.currentPage > 1) {
+        /* 
+         * Se la pagina è vuota e non è la prima, vado alla pagina precedente
+         */
+        if (this.internalReviews.length === 0 && this.currentPage > 1) {
           this.onPageChange(this.currentPage - 1);
-        } else {
-          // Altrimenti, ricarica la pagina corrente
+        } else if (this.restaurantId) {
+          /* 
+           * Altrimenti, ricarico la pagina corrente solo se in modalità autonoma
+           */
           this.loadReviews();
         }
         
-        // Emetti un evento per notificare il componente parent
+        /* 
+         * Emetto un evento per notificare il componente parent
+         */
         this.reviewDeleted.emit(reviewId);
       }
     });
@@ -212,6 +279,22 @@ export class RevListComponent implements OnInit {
   isReviewAuthor(review: Review): boolean {
     const currentUser = this.authService.getCurrentUser();
     return currentUser != null && currentUser.id === review.userId;
+  }
+  
+  /* 
+   * Getter per accedere alle recensioni nel template.
+   * Restituisce sempre internalReviews che può essere popolato
+   * sia dall'@Input che dal caricamento dal server.
+   */
+  get displayedReviews(): Review[] {
+    return this.internalReviews;
+  }
+  
+  /* 
+   * Verifico se ci sono recensioni da mostrare
+   */
+  get hasReviews(): boolean {
+    return this.internalReviews.length > 0;
   }
   
   /* 
