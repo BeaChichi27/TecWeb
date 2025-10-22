@@ -54,7 +54,10 @@ export class RestDetailComponent implements OnInit, OnDestroy {
     private reviewService: ReviewService,
     private authService: AuthService,
     private voteService: VoteService
-  ) {}
+  ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+  }
 
   ngOnInit(): void {
     /* 

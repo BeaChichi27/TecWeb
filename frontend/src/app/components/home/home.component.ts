@@ -27,6 +27,9 @@ export class HomeComponent implements OnInit {
     private authService: AuthService,
     private restaurantService: RestaurantService
   ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+    
     // Verifica se i cookie sono abilitati
     this.checkCookiesEnabled();
   }

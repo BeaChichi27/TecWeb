@@ -53,7 +53,10 @@ export class RevFormComponent implements OnInit {
     private reviewService: ReviewService,
     private authService: AuthService,
     private restaurantService: RestaurantService
-  ) {}
+  ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+  }
   
   /* 
    * Quando vengo inizializzato, controllo che l'utente sia loggato e lo reindirizzo

@@ -11,8 +11,8 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private userSubject = new BehaviorSubject<User | null>(null);
   
-  // Preferenza di storage: prova prima i cookie, poi localStorage
-  private useLocalStorage = true;
+  // Usa sessionStorage per cancellare i dati quando chiudi il browser
+  private useLocalStorage = false; // Cambiato a false per usare sessionStorage
   
   constructor(private http: HttpClient) { 
     this.loadUserFromStorage();
@@ -32,8 +32,8 @@ export class AuthService {
   }
   
   get token(): string | null {
-    // Prova prima cookie, poi localStorage
-    return this.getCookie('token') || localStorage.getItem('token');
+    // Prova prima cookie, poi sessionStorage (si cancella quando chiudi il browser)
+    return this.getCookie('token') || sessionStorage.getItem('token');
   }
   
   register(username: string, email: string, password: string, isOwner: boolean = false): Observable<any> {
@@ -136,9 +136,9 @@ export class AuthService {
       return;
     }
     
-    // Fallback a localStorage
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
+    // Fallback a sessionStorage (si cancella quando chiudi il browser)
+    const token = sessionStorage.getItem('token');
+    const user = sessionStorage.getItem('user');
     
     if (token && user) {
       this.userSubject.next(JSON.parse(user));
@@ -217,27 +217,28 @@ export class AuthService {
   }
 
   /**
-   * Salva token e user sia in cookie che in localStorage per compatibilità
+   * Salva token e user in sessionStorage (si cancella quando chiudi il browser)
+   * Questo assicura che l'utente debba fare login ad ogni nuova sessione
    * @param token Token JWT
    * @param user Dati utente
    */
   private saveAuthData(token: string, user: User): void {
-    // Salva in localStorage (compatibilità)
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    // Salva in sessionStorage (si cancella quando chiudi il browser)
+    sessionStorage.setItem('token', token);
+    sessionStorage.setItem('user', JSON.stringify(user));
     
-    // Salva anche in cookie (più sicuro)
-    this.setCookie('token', token, 7);
-    this.setCookie('user', JSON.stringify(user), 7);
+    // Salva anche in cookie con scadenza breve (1 giorno)
+    this.setCookie('token', token, 1);
+    this.setCookie('user', JSON.stringify(user), 1);
   }
 
   /**
    * Rimuove tutti i dati di autenticazione
    */
   private clearAuthData(): void {
-    // Rimuove da localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // Rimuove da sessionStorage
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     
     // Rimuove dai cookie
     this.deleteCookie('token');

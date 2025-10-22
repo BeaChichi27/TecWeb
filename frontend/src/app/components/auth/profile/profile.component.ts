@@ -50,7 +50,10 @@ export class ProfileComponent implements OnInit {
     private restaurantService: RestaurantService,
     private reviewService: ReviewService,
     private router: Router
-  ) {}
+  ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+  }
   
   /* 
    * All'inizializzazione, recupero i dati dell'utente corrente dal servizio

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -7,6 +7,8 @@ import { Restaurant, CreateRestaurantDto, UpdateRestaurantDto } from '../../../m
 import { RestaurantService } from '../../../services/restaurant.service';
 import { AuthService } from '../../../services/auth.service';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading';
+// Import Leaflet
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-rest-form',
@@ -20,7 +22,7 @@ import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading
   templateUrl: './rest-form.component.html',
   styleUrls: ['./rest-form.component.scss']
 })
-export class RestFormComponent implements OnInit, OnDestroy {
+export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
   /* 
    * Form e stato
    */
@@ -41,6 +43,13 @@ export class RestFormComponent implements OnInit, OnDestroy {
   allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
   
   /* 
+   * Mappa Leaflet
+   */
+  private map?: L.Map;
+  private marker?: L.Marker;
+  private mapInitialized = false;
+  
+  /* 
    * Sottoscrizioni
    */
   private routeSubscription?: Subscription;
@@ -51,7 +60,10 @@ export class RestFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private restaurantService: RestaurantService,
     private authService: AuthService
-  ) {}
+  ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+  }
   
   ngOnInit(): void {
     /* 
@@ -114,11 +126,130 @@ export class RestFormComponent implements OnInit, OnDestroy {
     });
   }
   
+  ngAfterViewInit(): void {
+    /* 
+     * Inizializzo la mappa dopo che la view è stata caricata
+     */
+    setTimeout(() => {
+      this.initializeMap();
+    }, 100);
+  }
+  
   ngOnDestroy(): void {
     /* 
      * Pulisco le sottoscrizioni per evitare memory leak
      */
     this.routeSubscription?.unsubscribe();
+    
+    /* 
+     * Distruggo la mappa per evitare memory leak
+     */
+    if (this.map) {
+      this.map.remove();
+    }
+  }
+  
+  /* 
+   * Inizializza la mappa Leaflet
+   */
+  private initializeMap(): void {
+    if (this.mapInitialized) return;
+    
+    try {
+      // Fix per le icone di Leaflet in production
+      const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
+      const iconUrl = 'assets/leaflet/marker-icon.png';
+      const shadowUrl = 'assets/leaflet/marker-shadow.png';
+      const iconDefault = L.icon({
+        iconRetinaUrl,
+        iconUrl,
+        shadowUrl,
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        tooltipAnchor: [16, -28],
+        shadowSize: [41, 41]
+      });
+      L.Marker.prototype.options.icon = iconDefault;
+      
+      // Centro mappa sull'Italia
+      const defaultLat = 41.9028;
+      const defaultLng = 12.4964;
+      
+      // Crea la mappa
+      this.map = L.map('restaurant-map').setView([defaultLat, defaultLng], 6);
+      
+      // Aggiungi il layer OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+      }).addTo(this.map);
+      
+      // Gestisci il click sulla mappa
+      this.map.on('click', (e: L.LeafletMouseEvent) => {
+        this.onMapClick(e.latlng.lat, e.latlng.lng);
+      });
+      
+      // Se ci sono già coordinate nel form, mostra il marker
+      const lat = this.latControl?.value;
+      const lng = this.lngControl?.value;
+      
+      if (lat !== 0 && lng !== 0 && lat && lng) {
+        this.addMarker(lat, lng);
+        this.map.setView([lat, lng], 13);
+      }
+      
+      this.mapInitialized = true;
+    } catch (error) {
+      console.error('Errore inizializzazione mappa:', error);
+    }
+  }
+  
+  /* 
+   * Gestisce il click sulla mappa
+   */
+  private onMapClick(lat: number, lng: number): void {
+    // Aggiorna il marker
+    this.addMarker(lat, lng);
+    
+    // Aggiorna le coordinate nel form
+    this.restaurantForm.patchValue({
+      location: {
+        lat: parseFloat(lat.toFixed(6)),
+        lng: parseFloat(lng.toFixed(6))
+      }
+    });
+    
+    this.successMessage = '📍 Posizione selezionata sulla mappa';
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 2000);
+  }
+  
+  /* 
+   * Aggiunge o aggiorna il marker sulla mappa
+   */
+  private addMarker(lat: number, lng: number): void {
+    if (!this.map) return;
+    
+    // Rimuovi il marker precedente se esiste
+    if (this.marker) {
+      this.map.removeLayer(this.marker);
+    }
+    
+    // Aggiungi nuovo marker
+    this.marker = L.marker([lat, lng], {
+      draggable: true
+    }).addTo(this.map);
+    
+    // Gestisci il drag del marker
+    this.marker.on('dragend', (e: L.DragEndEvent) => {
+      const position = e.target.getLatLng();
+      this.onMapClick(position.lat, position.lng);
+    });
+    
+    // Centra la mappa sul marker
+    this.map.setView([lat, lng], 13);
   }
   
   /* 

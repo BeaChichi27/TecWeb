@@ -14,7 +14,7 @@ import Vote from './models/vote';
 export const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: 'database.sqlite',
-  logging: false // Disabilita i log SQL per ora
+  logging: true
 });
 
 /*

@@ -48,18 +48,32 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
   }
 });
 
-/* Endpoint per ottenere tutti i ristoranti con paginazione */
+/* Endpoint per ottenere tutti i ristoranti con paginazione e ricerca */
 
 router.get('/', async (req, res) => {
-    const { name, page = '1', limit = '10' } = req.query;
+    const { name, search, page = '1', limit = '10' } = req.query;
     const pageNum = parseInt(page as string);
     const limitNum = parseInt(limit as string);
     const offset = (pageNum - 1) * limitNum;
     
+    // Accetta sia 'name' che 'search' come parametro di ricerca
+    const searchTerm = (search || name) as string | undefined;
+    
+    console.log('🔍 Ricerca ristoranti:', { searchTerm, page: pageNum, limit: limitNum });
+    
     try {
-        let whereClause: any = {};
-        if (name) {
-            whereClause.name = { [require('sequelize').Op.like]: `%${name}%` };
+        const { Op } = require('sequelize');
+        const Sequelize = require('sequelize');
+        let whereClause: any = undefined;
+        
+        if (searchTerm && searchTerm.trim() !== '') {
+            // Ricerca case-insensitive usando Sequelize.where con LOWER()
+            whereClause = Sequelize.where(
+                Sequelize.fn('LOWER', Sequelize.col('name')),
+                Op.like,
+                `%${searchTerm.trim().toLowerCase()}%`
+            );
+            console.log('📋 Cercando:', searchTerm.trim());
         }
         
         const { count, rows } = await Restaurant.findAndCountAll({
@@ -68,6 +82,8 @@ router.get('/', async (req, res) => {
             offset: offset,
             order: [['createdAt', 'DESC']]
         });
+        
+        console.log(`✅ Trovati ${count} ristoranti`);
         
         // Mappa i dati dal backend al formato frontend
         const mappedRestaurants = rows.map((restaurant: any) => ({
@@ -90,6 +106,7 @@ router.get('/', async (req, res) => {
             total: count
         });
     } catch (error) {
+        console.error('❌ Error fetching restaurants:', error);
         res.status(500).json({ message: 'Error fetching restaurants', error });
     }
 });

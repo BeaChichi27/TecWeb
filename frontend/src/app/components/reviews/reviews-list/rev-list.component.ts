@@ -48,7 +48,10 @@ export class RevListComponent implements OnInit {
     private reviewService: ReviewService,
     private authService: AuthService,
     private voteService: VoteService
-  ) {}
+  ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+  }
   
   /* 
    * All'inizializzazione, decido quale modalità usare:

@@ -25,6 +25,9 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+    
     /* 
      * Creo il form di login con validazione per username e password.
      * Entrambi i campi sono obbligatori per poter effettuare il login.

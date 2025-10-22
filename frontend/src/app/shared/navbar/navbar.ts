@@ -22,7 +22,10 @@ export class NavbarComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+  }
   
   /* 
    * All'inizializzazione del componente, verifico lo stato di autenticazione

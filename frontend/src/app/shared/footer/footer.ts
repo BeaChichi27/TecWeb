@@ -15,4 +15,8 @@ import { RouterModule } from '@angular/router';
 export class FooterComponent {
   currentYear: number = new Date().getFullYear();
   
+  constructor() {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+  }
 }

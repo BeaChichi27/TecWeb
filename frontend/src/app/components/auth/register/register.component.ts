@@ -36,6 +36,9 @@ export class RegisterComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    // Easter egg nascosto - visibile solo nella console del browser
+    console.log("ABBASSO GLOVO");
+    
     /* 
      * Creo il form di registrazione con validazione integrata.
      * Uso i validator di Angular per garantire che tutti i campi rispettino

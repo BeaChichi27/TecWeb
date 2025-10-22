@@ -25,10 +25,10 @@ Vote.init({
   modelName: 'Vote',
 });
 
-User.hasMany(Vote, { foreignKey: 'voterUserID' });
-Vote.belongsTo(User, { foreignKey: 'voterUserID' });
+User.hasMany(Vote, { foreignKey: 'voterUserID', as: 'votes' });
+Vote.belongsTo(User, { foreignKey: 'voterUserID', as: 'voter' });
 
-Review.hasMany(Vote, { foreignKey: 'reviewID', onDelete: 'CASCADE' });
-Vote.belongsTo(Review, { foreignKey: 'reviewID' });
+Review.hasMany(Vote, { foreignKey: 'reviewID', onDelete: 'CASCADE', as: 'vote' });
+Vote.belongsTo(Review, { foreignKey: 'reviewID', as: 'review' });
 
 export default Vote;
