@@ -50,11 +50,16 @@ export class ReviewService {
     page: number = 1, 
     limit: number = 10
   ): Observable<{ reviews: Review[], total: number }> {
+    console.log(`🔍 ReviewService: getUserReviews chiamato per userId=${userId}`);
+    
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
     
-    return this.http.get<{ reviews: Review[], total: number }>(`${this.apiUrl}/user/${userId}`, { params })
+    const url = `${this.apiUrl}/user/${userId}`;
+    console.log(`🌐 URL completo: ${url}`);
+    
+    return this.http.get<{ reviews: Review[], total: number }>(url, { params })
       .pipe(
         catchError(this.handleError)
       );

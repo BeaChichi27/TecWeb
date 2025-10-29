@@ -44,7 +44,6 @@
         </div>
       }
       
-      <!-- Restaurant grid -->
       @if (restaurants.length > 0) {
         <div class="restaurant-grid">
           @for (restaurant of restaurants; track restaurant.id) {
@@ -73,7 +72,6 @@
         </div>
       }
       
-      <!-- Pagination -->
       @if (totalPages > 1) {
         <div class="pagination">
           <button 
@@ -106,10 +104,9 @@
     </div>
   }
   
-  <!-- Floating action button to create new restaurant -->
   <div class="fab-container">
-    <a routerLink="/restaurants/new" class="fab-button">
-      <i class="fas fa-plus"></i>
+    <a routerLink="/restaurants/new" class="fab-button" title="Aggiungi nuovo ristorante">
+      +
     </a>
   </div>
 </div>

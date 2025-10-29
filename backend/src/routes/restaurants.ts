@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import Restaurant from '../models/restaurant';
+import Review from '../models/review';
 import multer from 'multer';
 import path from 'path';
 import { authenticateToken } from '../middleware/secure';
+import { Sequelize } from 'sequelize';
 
 const router = Router();
 
@@ -28,8 +30,10 @@ const upload = multer({
   }
 });
 
-/* Endpoint per creare un nuovo ristorante con immagine */
-
+/* 
+ * POST /api/restaurants
+ * Crea un nuovo ristorante con immagine (richiede autenticazione)
+ */
 router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
   const { name, description, latitude, longitude } = req.body;
   const creatorUserID = (req as any).user.userId;
@@ -48,8 +52,10 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
   }
 });
 
-/* Endpoint per ottenere tutti i ristoranti con paginazione e ricerca */
-
+/* 
+ * GET /api/restaurants
+ * Ottiene tutti i ristoranti con paginazione e ricerca per nome
+ */
 router.get('/', async (req, res) => {
     const { name, search, page = '1', limit = '10' } = req.query;
     const pageNum = parseInt(page as string);
@@ -67,7 +73,6 @@ router.get('/', async (req, res) => {
         let whereClause: any = undefined;
         
         if (searchTerm && searchTerm.trim() !== '') {
-            // Ricerca case-insensitive usando Sequelize.where con LOWER()
             whereClause = Sequelize.where(
                 Sequelize.fn('LOWER', Sequelize.col('name')),
                 Op.like,
@@ -85,20 +90,36 @@ router.get('/', async (req, res) => {
         
         console.log(`✅ Trovati ${count} ristoranti`);
         
-        // Mappa i dati dal backend al formato frontend
-        const mappedRestaurants = rows.map((restaurant: any) => ({
-            id: restaurant.restaurantID,
-            name: restaurant.name,
-            description: restaurant.description,
-            location: {
-                lat: restaurant.latitude,
-                lng: restaurant.longitude
-            },
-            imagePath: restaurant.imagePath,
-            imageUrl: restaurant.imagePath ? `http://localhost:3000/${restaurant.imagePath}` : null,
-            ownerId: restaurant.creatorUserID,
-            createdAt: restaurant.createdAt,
-            updatedAt: restaurant.updatedAt
+        // Per ogni ristorante, calcola reviewsCount e averageRating
+        const mappedRestaurants = await Promise.all(rows.map(async (restaurant: any) => {
+            const reviewsCount = await Review.count({
+                where: { restaurantID: restaurant.restaurantID }
+            });
+            
+            const averageRatingResult = await Review.findOne({
+                where: { restaurantID: restaurant.restaurantID },
+                attributes: [[Sequelize.fn('AVG', Sequelize.col('rating')), 'avgRating']],
+                raw: true
+            });
+            
+            const averageRating = averageRatingResult ? parseFloat((averageRatingResult as any).avgRating) || null : null;
+            
+            return {
+                id: restaurant.restaurantID,
+                name: restaurant.name,
+                description: restaurant.description,
+                location: {
+                    lat: restaurant.latitude,
+                    lng: restaurant.longitude
+                },
+                imagePath: restaurant.imagePath,
+                imageUrl: restaurant.imagePath ? `http://localhost:3000/uploads/${restaurant.imagePath}` : null,
+                ownerId: restaurant.creatorUserID,
+                reviewsCount: reviewsCount,
+                averageRating: averageRating,
+                createdAt: restaurant.createdAt,
+                updatedAt: restaurant.updatedAt
+            };
         }));
         
         res.json({
@@ -111,8 +132,10 @@ router.get('/', async (req, res) => {
     }
 });
 
-/* Endpoint per ottenere un ristorante specifico con descrizione, latitudine, longitudine e percorso immagine */
-
+/* 
+ * GET /api/restaurants/:id
+ * Ottiene i dettagli di un ristorante specifico incluse statistiche e recensioni
+ */
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -122,6 +145,19 @@ router.get('/:id', async (req, res) => {
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
+        
+        // Calcola reviewsCount e averageRating
+        const reviewsCount = await Review.count({
+            where: { restaurantID: id }
+        });
+        
+        const averageRatingResult = await Review.findOne({
+            where: { restaurantID: id },
+            attributes: [[Sequelize.fn('AVG', Sequelize.col('rating')), 'avgRating']],
+            raw: true
+        });
+        
+        const averageRating = averageRatingResult ? parseFloat((averageRatingResult as any).avgRating) || null : null;
         
         // Mappa i dati dal backend al formato frontend
         const mappedRestaurant = {
@@ -133,8 +169,10 @@ router.get('/:id', async (req, res) => {
                 lng: (restaurant as any).longitude
             },
             imagePath: (restaurant as any).imagePath,
-            imageUrl: (restaurant as any).imagePath ? `http://localhost:3000/${(restaurant as any).imagePath}` : null,
+            imageUrl: (restaurant as any).imagePath ? `http://localhost:3000/uploads/${(restaurant as any).imagePath}` : null,
             ownerId: (restaurant as any).creatorUserID,
+            reviewsCount: reviewsCount,
+            averageRating: averageRating,
             createdAt: (restaurant as any).createdAt,
             updatedAt: (restaurant as any).updatedAt
         };
@@ -145,8 +183,10 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-/* Endpoint per eliminare un ristorante (solo il creatore può eliminarlo) */
-
+/* 
+ * DELETE /api/restaurants/:id
+ * Elimina un ristorante (solo il creatore può eliminarlo)
+ */
 router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const creatorUserID = (req as any).user.userId;

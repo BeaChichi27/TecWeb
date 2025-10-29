@@ -8,8 +8,10 @@ import { Sequelize } from 'sequelize';
 
 const router = Router();
 
-/* Endpoint per creare una nuova review */
-
+/* 
+ * POST /api/reviews
+ * Crea una nuova recensione per un ristorante (richiede autenticazione)
+ */
 router.post('/', authenticateToken, async (req, res) => {
     const { content, rating, restaurantId } = req.body;
     const authorUserID = (req as any).user.userId;
@@ -33,8 +35,10 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
-/* Endpoint per visualizzare le reviews con paginazione e ordinamento */
-
+/* 
+ * GET /api/reviews/restaurant/:restaurantId
+ * Ottiene tutte le recensioni di un ristorante con paginazione e ordinamento
+ */
 router.get('/restaurant/:restaurantId', async (req, res) => {
     const { restaurantId } = req.params;
     const page = parseInt(req.query.page as string) || 1;
@@ -66,11 +70,11 @@ router.get('/restaurant/:restaurantId', async (req, res) => {
             distinct: true
         });
 
-        // Mappare i dati per il frontend
+        // Mappo i dati per il frontend
         const reviews = rows.map(review => {
             const reviewData = review.toJSON() as any;
             
-            // Calcola upvotes e downvotes
+            // Calcolo upvotes e downvotes
             const upvotes = reviewData.vote?.filter((v: any) => v.voteType === 'upvote').length || 0;
             const downvotes = reviewData.vote?.filter((v: any) => v.voteType === 'downvote').length || 0;
             
@@ -101,6 +105,10 @@ router.get('/restaurant/:restaurantId', async (req, res) => {
     }
 });
 
+/* 
+ * DELETE /api/reviews/:id
+ * Elimina una recensione (solo l'autore può eliminarla)
+ */
 router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const authorUserID = (req as any).user.userId;
@@ -117,8 +125,10 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-/* Endpoint per votare una review (like/dislike) */
-
+/* 
+ * POST /api/reviews/:id/vote
+ * Crea o aggiorna un voto per una recensione (richiede autenticazione)
+ */
 router.post('/:id/vote', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { voteType } = req.body; 
@@ -148,8 +158,10 @@ router.post('/:id/vote', authenticateToken, async (req, res) => {
     }
 });
 
-/* Endpoint per contare i voti */
-
+/* 
+ * GET /api/reviews/:id/votes
+ * Ottiene il conteggio dei voti (upvote/downvote) per una recensione specifica
+ */
 router.get('/:id/votes', async (req, res) => {
     const { id } = req.params;  
     try {
@@ -167,6 +179,62 @@ router.get('/:id/votes', async (req, res) => {
     }
 });
 
-   
+/* 
+ * GET /api/reviews/user/:userId
+ * Ottiene tutte le recensioni scritte da un utente specifico
+ */
+router.get('/user/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
+
+    console.log(`📊 GET /api/reviews/user/${userId} - page: ${page}, limit: ${limit}`);
+
+    try {
+        const { count, rows } = await Review.findAndCountAll({
+            where: { authorUserID: userId },
+            include: [
+                {
+                    model: Restaurant,
+                    as: 'restaurant',
+                    attributes: ['restaurantID', 'name']
+                },
+                {
+                    model: User,
+                    as: 'author',
+                    attributes: ['userID', 'username']
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit,
+            offset
+        });
+
+        const reviews = rows.map((review: any) => ({
+            id: review.reviewID,
+            content: review.content,
+            rating: review.rating,
+            restaurantId: review.restaurantID,
+            restaurantName: review.restaurant?.name || 'Ristorante sconosciuto',
+            authorId: review.authorUserID,
+            authorName: review.author?.username || 'Utente sconosciuto',
+            createdAt: review.createdAt,
+            updatedAt: review.updatedAt
+        }));
+
+        console.log(`✅ Trovate ${count} recensioni per utente ${userId}`);
+
+        res.json({
+            reviews,
+            total: count,
+            page,
+            totalPages: Math.ceil(count / limit)
+        });
+    } catch (error) {
+        console.error('❌ Errore nel recupero delle recensioni utente:', error);
+        res.status(500).json({ message: 'Errore nel recuperare le recensioni', error });
+    }
+});
 
 export default router;

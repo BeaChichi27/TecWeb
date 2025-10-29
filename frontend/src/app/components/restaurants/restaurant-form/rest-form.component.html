@@ -1,6 +1,4 @@
-<!-- Container principale form ristorante -->
 <div class="rest-form-container">
-  <!-- Header -->
   <div class="form-header">
     <h1>{{ pageTitle }}</h1>
     <p class="subtitle">
@@ -12,12 +10,10 @@
     </p>
   </div>
 
-  <!-- Spinner di caricamento -->
   @if (loading) {
     <app-loading-spinner></app-loading-spinner>
   }
 
-  <!-- Messaggi -->
   @if (errorMessage && !loading) {
     <div class="message error-message">
       <i class="icon">⚠️</i>
@@ -32,7 +28,6 @@
     </div>
   }
 
-  <!-- Form -->
   @if (!loading) {
     <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
       <!-- Card Informazioni Base -->
@@ -256,7 +251,6 @@
             </div>
           }
 
-          <!-- Info requisiti -->
           <div class="info-box">
             <i class="icon">ℹ️</i>
             <div>

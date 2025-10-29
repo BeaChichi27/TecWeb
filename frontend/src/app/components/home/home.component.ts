@@ -27,7 +27,6 @@ export class HomeComponent implements OnInit {
     private authService: AuthService,
     private restaurantService: RestaurantService
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
     console.log("ABBASSO GLOVO");
     
     // Verifica se i cookie sono abilitati
@@ -36,7 +35,7 @@ export class HomeComponent implements OnInit {
   
   /* 
    * Quando viene inizializzato, verifica se l'utente è già autenticato 
-   * recuperandolo dal servizio di autentic azione. Si iscrive inoltre
+   * recuperandolo dal servizio di autenticazione. Si iscrive inoltre
    * ai cambiamenti dell'utente corrente per aggiornare la UI di conseguenza.
    * Infine, carica una selezione di ristoranti in evidenza da mostrare
    * nella home page.
@@ -45,7 +44,7 @@ export class HomeComponent implements OnInit {
     // Recupero l'utente corrente (se autenticato)
     this.currentUser = this.authService.getCurrentUser();
     
-    // Mi iscrivo ai cambiamenti dello stato di autenticazione
+    // Scrivo i cambiamenti dello stato di autenticazione
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });

@@ -69,9 +69,6 @@
   }
 }
 
-/*
- * Tab navigation
- */
 .tabs-navigation {
   display: flex;
   gap: 0.5rem;
@@ -127,9 +124,6 @@
   }
 }
 
-/*
- * Tab content
- */
 .tab-content {
   animation: fadeIn 0.3s ease;
 }
@@ -145,9 +139,6 @@
   }
 }
 
-/*
- * Profile sections
- */
 .profile-section {
   background: white;
   border-radius: 12px;
@@ -179,9 +170,6 @@
   }
 }
 
-/*
- * Form styles
- */
 .form-group {
   margin-bottom: 1.5rem;
   
@@ -258,9 +246,6 @@
   }
 }
 
-/*
- * Buttons
- */
 .btn {
   padding: 0.75rem 1.5rem;
   border: none;
@@ -316,7 +301,7 @@
 }
 
 /*
- * Messages
+ * Messaggi
  */
 .loading-container {
   display: flex;
@@ -383,9 +368,6 @@
   }
 }
 
-/*
- * Empty state
- */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -406,11 +388,76 @@
     margin: 0 0 1.5rem 0;
     color: #6b7280;
   }
+  
+  // Stile flashcard per recensioni vuote
+  &.flashcard {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    color: white;
+    max-width: 600px;
+    margin: 2rem auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+    
+    .flashcard-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      animation: bounce 2s infinite;
+    }
+    
+    h3 {
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .btn {
+      background: white;
+      color: #667eea;
+      font-weight: 600;
+      padding: 12px 30px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.95);
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+      
+      i {
+        color: #667eea;
+        font-size: 1rem;
+        margin-right: 8px;
+      }
+    }
+  }
 }
 
-/*
- * Restaurants grid
- */
+// Animazione bounce per l'icona
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 .restaurants-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -495,9 +542,6 @@
   }
 }
 
-/*
- * Reviews list
- */
 .reviews-list {
   display: flex;
   flex-direction: column;
@@ -577,4 +621,79 @@
 .review-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+/*
+ * Popup "Nessuna Recensione"
+ */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.popup-content {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: slideUp 0.4s ease;
+
+  .popup-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    animation: bounce 2s infinite;
+  }
+
+  h3 {
+    font-size: 1.75rem;
+    color: #111827;
+    margin: 0 0 1rem 0;
+  }
+
+  p {
+    color: #6b7280;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #374151;
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

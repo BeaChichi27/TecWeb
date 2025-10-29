@@ -36,7 +36,7 @@ export class RegisterComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
+    // Easter egg nascosto, visibile solo nella console del browser in quanto lavoratrice di Glovo
     console.log("ABBASSO GLOVO");
     
     /* 
@@ -63,14 +63,13 @@ export class RegisterComponent implements OnInit {
       confirmPassword: ['', [
         Validators.required
       ]],
-      isOwner: [false], // Flag per distinguere gli utenti che possono creare ristoranti
       acceptTerms: [false, [Validators.requiredTrue]] // L'utente deve accettare i termini
     }, {
       validators: this.passwordMatchValidator
     });
 
     /* 
-     * Ascolto i cambiamenti della password per aggiornare in tempo reale
+     * Verifico i cambiamenti della password per aggiornare in tempo reale
      * gli indicatori dei requisiti di sicurezza
      */
     this.registerForm.get('password')?.valueChanges.subscribe(password => {
@@ -100,7 +99,7 @@ export class RegisterComponent implements OnInit {
 
   /* 
    * Validatore personalizzato per verificare che password e conferma password
-   * coincidano. Opera a livello di FormGroup per confrontare i due campi.
+   * coincidano. 
    */
   private passwordMatchValidator(formGroup: AbstractControl): ValidationErrors | null {
     const password = formGroup.get('password')?.value;
@@ -148,14 +147,15 @@ export class RegisterComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
     
-    const { username, email, password, isOwner } = this.registerForm.value;
+    const { username, email, password } = this.registerForm.value;
     
     /* 
      * Invio la richiesta di registrazione al backend.
+     * Tutti gli utenti possono creare ristoranti.
      * Se ha successo, reindirizzo l'utente alla pagina di login
      * con un messaggio di conferma.
      */
-    this.authService.register(username, email, password, isOwner).subscribe({
+    this.authService.register(username, email, password, true).subscribe({
       next: () => {
         /* 
          * Registrazione completata con successo!
@@ -186,7 +186,6 @@ export class RegisterComponent implements OnInit {
 
   /* 
    * Toggle per mostrare/nascondere la password.
-   * Migliora l'usabilità permettendo all'utente di verificare cosa sta digitando.
    */
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
@@ -200,8 +199,7 @@ export class RegisterComponent implements OnInit {
   }
 
   /* 
-   * Pulisco i messaggi di errore quando l'utente inizia a digitare,
-   * per migliorare l'esperienza utente ed evitare messaggi obsoleti.
+   * Pulisco i messaggi di errore quando l'utente inizia a digitare.
    */
   clearMessages(): void {
     if (this.errorMessage) {
@@ -311,9 +309,5 @@ export class RegisterComponent implements OnInit {
 
   get acceptTermsControl() { 
     return this.registerForm.get('acceptTerms'); 
-  }
-
-  get isOwnerControl() { 
-    return this.registerForm.get('isOwner'); 
   }
 }

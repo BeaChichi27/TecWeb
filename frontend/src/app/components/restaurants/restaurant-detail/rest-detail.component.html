@@ -1,6 +1,4 @@
-<!-- Container principale con spinner di caricamento -->
 <div class="rest-detail-container">
-  <!-- Spinner di caricamento -->
   @if (loading) {
     <app-loading-spinner></app-loading-spinner>
   }
@@ -35,11 +33,6 @@
             [alt]="restaurant.name"
             (error)="$event.target.src='/assets/placeholder-restaurant.jpg'"
           >
-          
-          <!-- Badge owner -->
-          @if (isOwner) {
-            <span class="owner-badge">👑 Il tuo ristorante</span>
-          }
         </div>
 
         <div class="header-info">
@@ -47,7 +40,7 @@
             <h1>{{ restaurant.name }}</h1>
             
             <!-- Rating -->
-            @if (restaurant.averageRating) {
+            @if (restaurant.reviewsCount && restaurant.reviewsCount > 0) {
               <div class="rating">
                 <div class="stars">
                   @for (star of getStarsArray(restaurant.averageRating); track $index) {
@@ -58,7 +51,7 @@
                   }
                 </div>
                 <span class="rating-value">{{ formatRating(restaurant.averageRating) }}</span>
-                <span class="reviews-count">({{ restaurant.reviewsCount || 0 }} recensioni)</span>
+                <span class="reviews-count">({{ restaurant.reviewsCount }} recensioni)</span>
               </div>
             } @else {
               <div class="rating no-rating">
@@ -67,7 +60,6 @@
             }
           </div>
 
-          <!-- Descrizione -->
           <p class="description">{{ restaurant.description }}</p>
 
           <!-- Indirizzo e mappa -->
@@ -96,7 +88,6 @@
             </div>
           }
 
-          <!-- Metadati -->
           <div class="metadata">
             @if (restaurant.ownerUsername) {
               <span class="meta-item">
@@ -112,26 +103,9 @@
             }
           </div>
 
-          <!-- Azioni proprietario -->
-          @if (isOwner) {
-            <div class="owner-actions">
-              <button 
-                class="btn btn-primary" 
-                (click)="editRestaurant()"
-              >
-                ✏️ Modifica
-              </button>
-              <button 
-                class="btn btn-danger" 
-                (click)="deleteRestaurant()"
-              >
-                🗑️ Elimina
-              </button>
-            </div>
-          }
         </div>
       </div>
-
+    
       <!-- Sezione recensioni -->
       <div class="reviews-section" id="reviews-section">
         <div class="section-header">
@@ -154,7 +128,6 @@
           }
         </div>
 
-        <!-- Controlli ordinamento -->
         @if (hasReviews) {
           <div class="reviews-controls">
             <span class="total-count">{{ totalReviews }} recensioni totali</span>
@@ -230,7 +203,6 @@
                     </button>
                   </div>
 
-                  <!-- Azioni proprietario recensione -->
                   @if (canEditReview(review)) {
                     <div class="review-actions">
                       <a 
@@ -258,7 +230,6 @@
                 ‹ Precedente
               </button>
 
-              <!-- Numeri pagina -->
               @for (page of pageNumbers; track page) {
                 <button 
                   class="page-btn"

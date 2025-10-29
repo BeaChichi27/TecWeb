@@ -49,7 +49,6 @@ export class RevListComponent implements OnInit {
     private authService: AuthService,
     private voteService: VoteService
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
     console.log("ABBASSO GLOVO");
   }
   
@@ -78,8 +77,6 @@ export class RevListComponent implements OnInit {
   
   /* 
    * Carico le recensioni dal server applicando i filtri di paginazione e ordinamento.
-   * Gestisco lo stato di caricamento e eventuali errori che potrebbero verificarsi.
-   * Aggiorno la lista delle recensioni e il conteggio totale per la paginazione.
    */
   loadReviews(): void {
     if (!this.restaurantId) {
@@ -146,7 +143,7 @@ export class RevListComponent implements OnInit {
   }
   
   /* 
-   * Aggiungo un voto positivo (upvote) a una recensione.
+   * Mostro un voto positivo (upvote) a una recensione.
    * Prima verifico che l'utente sia autenticato, poi invio la richiesta
    * al server. Dopo la votazione, ricarico le recensioni per aggiornare
    * i conteggi dei voti.
@@ -226,7 +223,7 @@ export class RevListComponent implements OnInit {
   }
   
   /* 
-   * Elimino una recensione se sono l'autore.
+   * Eliminazione di una recensione se sono l'autore.
    * Prima chiedo conferma all'utente, poi invio la richiesta al server
    * e rimuovo la recensione dalla lista locale se l'operazione va a buon fine.
    */
@@ -284,11 +281,6 @@ export class RevListComponent implements OnInit {
     return currentUser != null && currentUser.id === review.userId;
   }
   
-  /* 
-   * Getter per accedere alle recensioni nel template.
-   * Restituisce sempre internalReviews che può essere popolato
-   * sia dall'@Input che dal caricamento dal server.
-   */
   get displayedReviews(): Review[] {
     return this.internalReviews;
   }
@@ -300,10 +292,6 @@ export class RevListComponent implements OnInit {
     return this.internalReviews.length > 0;
   }
   
-  /* 
-   * Fornisco il numero totale di pagine calcolato in base al numero
-   * di recensioni totali e al numero di recensioni per pagina.
-   */
   get totalPages(): number {
     return Math.ceil(this.totalReviews / this.reviewsPerPage);
   }

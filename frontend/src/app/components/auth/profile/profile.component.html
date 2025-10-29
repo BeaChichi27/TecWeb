@@ -10,14 +10,8 @@
     </div>
   </div>
   
-  <!-- Tab navigation -->
+  <!-- Tab di navigazione -->
   <div class="tabs-navigation">
-    <button 
-      class="tab-button" 
-      [class.active]="activeTab === 'info'"
-      (click)="switchTab('info')">
-      <i class="fas fa-user"></i> Informazioni
-    </button>
     <button 
       class="tab-button" 
       [class.active]="activeTab === 'restaurants'"
@@ -32,227 +26,219 @@
     </button>
   </div>
   
-  <!-- Loading spinner -->
-  <div *ngIf="loading" class="loading-container">
-    <app-loading-spinner></app-loading-spinner>
-  </div>
+  @if (loading) {
+    <div class="loading-container">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+  }
   
-  <!-- Messages -->
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
   
-  <div *ngIf="successMessage" class="success-message">
-    {{ successMessage }}
-  </div>
+  @if (successMessage) {
+    <div class="success-message">
+      {{ successMessage }}
+    </div>
+  }
   
-  <!-- Tab: Informazioni profilo -->
-  <div *ngIf="activeTab === 'info' && !loading" class="tab-content">
-    <!-- Modifica profilo -->
-    <div class="profile-section">
+  <!-- Sezione d'impostazione account -->
+  <div class="account-settings">
+    <!-- Cambio password -->
+    <section class="security-section">
       <div class="section-header">
-        <h2>Informazioni Personali</h2>
-        <button 
-          *ngIf="!isEditingProfile" 
-          class="btn secondary" 
-          (click)="enableProfileEdit()">
-          <i class="fas fa-edit"></i> Modifica
-        </button>
+        <h2><i class="fas fa-lock"></i> Sicurezza</h2>
+        @if (!isChangingPassword) {
+          <button class="btn secondary" (click)="enablePasswordChange()">
+            <i class="fas fa-key"></i> Cambia Password
+          </button>
+        }
       </div>
       
-      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-        <div class="form-group">
-          <label for="username">Nome Utente</label>
-          <input 
-            type="text" 
-            id="username" 
-            formControlName="username"
-            [disabled]="true">
-          <small class="helper-text">Il nome utente non può essere modificato</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="email">Email*</label>
-          <input 
-            type="email" 
-            id="email" 
-            formControlName="email"
-            [readonly]="!isEditingProfile">
-          <div class="validation-error" *ngIf="emailControl?.invalid && emailControl?.touched">
-            <span *ngIf="emailControl?.errors?.['required']">L'email è obbligatoria</span>
-            <span *ngIf="emailControl?.errors?.['email']">Inserisci un'email valida</span>
-          </div>
-        </div>
-        
-        <div class="form-row">
+      @if (isChangingPassword) {
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form">
           <div class="form-group">
-            <label for="firstName">Nome</label>
+            <label for="currentPassword">Password Attuale*</label>
             <input 
-              type="text" 
-              id="firstName" 
-              formControlName="firstName"
-              [readonly]="!isEditingProfile">
+              type="password" 
+              id="currentPassword" 
+              formControlName="currentPassword"
+              placeholder="Inserisci la password attuale">
+            @if (passwordForm.get('currentPassword')?.invalid && 
+                 passwordForm.get('currentPassword')?.touched) {
+              <div class="validation-error">
+                <span>La password attuale è obbligatoria</span>
+              </div>
+            }
           </div>
           
           <div class="form-group">
-            <label for="lastName">Cognome</label>
+            <label for="newPassword">Nuova Password*</label>
             <input 
-              type="text" 
-              id="lastName" 
-              formControlName="lastName"
-              [readonly]="!isEditingProfile">
+              type="password" 
+              id="newPassword" 
+              formControlName="newPassword"
+              placeholder="Inserisci la nuova password (min 6 caratteri)">
+            @if (passwordForm.get('newPassword')?.invalid && 
+                 passwordForm.get('newPassword')?.touched) {
+              <div class="validation-error">
+                @if (passwordForm.get('newPassword')?.errors?.['required']) {
+                  <span>La nuova password è obbligatoria</span>
+                }
+                @if (passwordForm.get('newPassword')?.errors?.['minlength']) {
+                  <span>La password deve contenere almeno 6 caratteri</span>
+                }
+              </div>
+            }
           </div>
-        </div>
-        
-        <div *ngIf="isEditingProfile" class="form-actions">
-          <button type="button" class="btn secondary" (click)="cancelProfileEdit()">
-            <i class="fas fa-times"></i> Annulla
-          </button>
-          <button type="submit" class="btn primary" [disabled]="profileForm.invalid || loading">
-            <i class="fas fa-save"></i> Salva Modifiche
-          </button>
-        </div>
-      </form>
-    </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">Conferma Nuova Password*</label>
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              formControlName="confirmPassword"
+              placeholder="Conferma la nuova password">
+            @if (passwordForm.hasError('passwordMismatch') && 
+                 passwordForm.get('confirmPassword')?.touched) {
+              <div class="validation-error">
+                <span>Le password non corrispondono</span>
+              </div>
+            }
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn secondary" (click)="cancelPasswordChange()">
+              <i class="fas fa-times"></i> Annulla
+            </button>
+            <button type="submit" class="btn primary" [disabled]="passwordForm.invalid || loading">
+              <i class="fas fa-save"></i> Cambia Password
+            </button>
+          </div>
+        </form>
+      }
+    </section>
     
-    <!-- Cambio password -->
-    <div class="profile-section">
+    <!-- Eliminazione account -->
+    <section class="danger-zone">
       <div class="section-header">
-        <h2>Sicurezza</h2>
-        <button 
-          *ngIf="!isChangingPassword" 
-          class="btn secondary" 
-          (click)="enablePasswordChange()">
-          <i class="fas fa-key"></i> Cambia Password
-        </button>
+        <h2><i class="fas fa-exclamation-triangle"></i> Rimuovi Profilo</h2>
       </div>
-      
-      <form *ngIf="isChangingPassword" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-        <div class="form-group">
-          <label for="currentPassword">Password Attuale*</label>
-          <input 
-            type="password" 
-            id="currentPassword" 
-            formControlName="currentPassword">
-          <div class="validation-error" *ngIf="currentPasswordControl?.invalid && currentPasswordControl?.touched">
-            <span *ngIf="currentPasswordControl?.errors?.['required']">La password attuale è obbligatoria</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="newPassword">Nuova Password*</label>
-          <input 
-            type="password" 
-            id="newPassword" 
-            formControlName="newPassword">
-          <div class="validation-error" *ngIf="newPasswordControl?.invalid && newPasswordControl?.touched">
-            <span *ngIf="newPasswordControl?.errors?.['required']">La nuova password è obbligatoria</span>
-            <span *ngIf="newPasswordControl?.errors?.['minlength']">La password deve essere di almeno 6 caratteri</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="confirmPassword">Conferma Nuova Password*</label>
-          <input 
-            type="password" 
-            id="confirmPassword" 
-            formControlName="confirmPassword">
-          <div class="validation-error" *ngIf="confirmPasswordControl?.invalid && confirmPasswordControl?.touched">
-            <span *ngIf="confirmPasswordControl?.errors?.['required']">La conferma password è obbligatoria</span>
-          </div>
-          <div class="validation-error" *ngIf="passwordForm.errors?.['passwordMismatch'] && confirmPasswordControl?.touched">
-            <span>Le password non corrispondono</span>
-          </div>
-        </div>
-        
-        <div class="form-actions">
-          <button type="button" class="btn secondary" (click)="cancelPasswordChange()">
-            <i class="fas fa-times"></i> Annulla
-          </button>
-          <button type="submit" class="btn primary" [disabled]="passwordForm.invalid || loading">
-            <i class="fas fa-key"></i> Cambia Password
-          </button>
-        </div>
-      </form>
-    </div>
-    
-    <!-- Zona pericolosa -->
-    <div class="profile-section danger-zone">
-      <h2>Zona Pericolosa</h2>
-      <p>Una volta eliminato l'account, non c'è modo di tornare indietro. Sei sicuro?</p>
+      <p class="warning-text">
+        Eliminando il tuo account perderai definitivamente tutti i tuoi dati, 
+        inclusi i ristoranti creati e le recensioni pubblicate. 
+        Una volta eliminato l'account, non c'è modo di tornare indietro. Sei sicuro?
+      </p>
       <button class="btn danger" (click)="deleteAccount()">
         <i class="fas fa-trash-alt"></i> Elimina Account
       </button>
-    </div>
+    </section>
   </div>
   
-  <!-- Tab: I Miei Ristoranti -->
-  <div *ngIf="activeTab === 'restaurants' && !loading" class="tab-content">
-    <div *ngIf="userRestaurants.length === 0" class="empty-state">
-      <i class="fas fa-utensils"></i>
-      <h3>Nessun ristorante creato</h3>
-      <p>Non hai ancora creato nessun ristorante. Inizia ora!</p>
-      <a [routerLink]="['/restaurants/new']" class="btn primary">
-        <i class="fas fa-plus-circle"></i> Crea Ristorante
-      </a>
-    </div>
-    
-    <div *ngIf="userRestaurants.length > 0" class="restaurants-grid">
-      <div *ngFor="let restaurant of userRestaurants" class="restaurant-card">
-        <a [routerLink]="['/restaurants', restaurant.id]" class="restaurant-link">
-          <div class="restaurant-image">
-            <img [src]="restaurant.imageUrl || 'assets/images/restaurant-placeholder.jpg'" [alt]="restaurant.name">
-          </div>
-          <div class="restaurant-info">
-            <h3>{{ restaurant.name }}</h3>
-            <p>{{ restaurant.description | slice:0:100 }}...</p>
-            <div class="restaurant-meta">
-              <span class="rating" *ngIf="restaurant.averageRating">
-                <i class="fas fa-star"></i> {{ restaurant.averageRating | number:'1.1-1' }}
-              </span>
-              <span class="reviews">
-                <i class="fas fa-comment"></i> {{ restaurant.reviewsCount || 0 }}
-              </span>
-            </div>
-          </div>
+  <!-- Popup per "Nessuna Recensione" -->
+  @if (showNoReviewsPopup) {
+    <div class="popup-overlay">
+      <div class="popup-content">
+        <button class="close-button" (click)="closeNoReviewsPopup()">&times;</button>
+        <div class="popup-icon">✍️</div>
+        <h3>Non hai ancora scritto recensioni</h3>
+        <p>Che ne dici di iniziare? Esplora i ristoranti e condividi la tua esperienza con la community!</p>
+        <a [routerLink]="['/restaurants']" class="btn primary" (click)="closeNoReviewsPopup()">
+          <i class="fas fa-utensils"></i> Esplora Ristoranti
         </a>
       </div>
     </div>
-  </div>
+  }
+  
+  <!-- Tab: I Miei Ristoranti -->
+  @if (activeTab === 'restaurants' && !loading) {
+    <div class="tab-content">
+      @if (userRestaurants.length === 0) {
+        <div class="empty-state">
+          <i class="fas fa-utensils"></i>
+          <h3>Nessun ristorante creato</h3>
+          <p>Non hai ancora creato nessun ristorante. Inizia ora!</p>
+          <a [routerLink]="['/restaurants/new']" class="btn primary">
+            <i class="fas fa-plus-circle"></i> Crea Ristorante
+          </a>
+        </div>
+      }
+      
+      @if (userRestaurants.length > 0) {
+        <div class="restaurants-grid">
+          @for (restaurant of userRestaurants; track restaurant.id) {
+            <div class="restaurant-card">
+              <a [routerLink]="['/restaurants', restaurant.id]" class="restaurant-link">
+                <div class="restaurant-image">
+                  <img [src]="restaurant.imageUrl || 'assets/images/restaurant-placeholder.jpg'" [alt]="restaurant.name">
+                </div>
+                <div class="restaurant-info">
+                  <h3>{{ restaurant.name }}</h3>
+                  <p>{{ restaurant.description | slice:0:100 }}...</p>
+                  <div class="restaurant-meta">
+                    @if (restaurant.averageRating) {
+                      <span class="rating">
+                        <i class="fas fa-star"></i> {{ restaurant.averageRating | number:'1.1-1' }}
+                      </span>
+                    }
+                    <span class="reviews">
+                      <i class="fas fa-comment"></i> {{ restaurant.reviewsCount || 0 }}
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
   
   <!-- Tab: Le Mie Recensioni -->
-  <div *ngIf="activeTab === 'reviews' && !loading" class="tab-content">
-    <div *ngIf="userReviews.length === 0" class="empty-state">
-      <i class="fas fa-comment-slash"></i>
-      <h3>Nessuna recensione scritta</h3>
-      <p>Non hai ancora scritto nessuna recensione. Inizia a condividere le tue esperienze!</p>
-      <a [routerLink]="['/restaurants']" class="btn primary">
-        <i class="fas fa-search"></i> Esplora Ristoranti
-      </a>
-    </div>
-    
-    <div *ngIf="userReviews.length > 0" class="reviews-list">
-      <div *ngFor="let review of userReviews" class="review-card">
-        <div class="review-header">
-          <h3>
-            <a [routerLink]="['/restaurants', review.restaurantId]">
-              {{ review.restaurantName }}
-            </a>
-          </h3>
-          <div class="rating">
-            <i *ngFor="let star of [].constructor(review.rating)" class="fas fa-star"></i>
-          </div>
+  @if (activeTab === 'reviews' && !loading) {
+    <div class="tab-content">
+      @if (userReviews.length === 0) {
+        <div class="empty-state flashcard">
+          <div class="flashcard-icon">✍️</div>
+          <h3>Scrivi una recensione a un ristorante</h3>
+          <p>Inizia a condividere le tue esperienze! Esplora i ristoranti e scrivi la tua prima recensione.</p>
+          <a [routerLink]="['/restaurants']" class="btn primary">
+            <i class="fas fa-utensils"></i> Esplora Ristoranti
+          </a>
         </div>
-        <p class="review-content">{{ review.content }}</p>
-        <div class="review-footer">
-          <span class="date">{{ formatDate(review.createdAt) }}</span>
-          <div class="review-actions">
-            <a [routerLink]="['/reviews', review.id, 'edit']" class="btn small secondary">
-              <i class="fas fa-edit"></i> Modifica
-            </a>
-          </div>
+      }
+      
+      @if (userReviews.length > 0) {
+        <div class="reviews-list">
+          @for (review of userReviews; track review.id) {
+            <div class="review-card">
+              <div class="review-header">
+                <h3>
+                  <a [routerLink]="['/restaurants', review.restaurantId]">
+                    {{ review.restaurantName }}
+                  </a>
+                </h3>
+                <div class="rating">
+                  @for (star of [].constructor(review.rating); track $index) {
+                    <i class="fas fa-star"></i>
+                  }
+                </div>
+              </div>
+              <p class="review-content">{{ review.content }}</p>
+              <div class="review-footer">
+                <span class="date">{{ formatDate(review.createdAt) }}</span>
+                <div class="review-actions">
+                  <a [routerLink]="['/reviews', review.id, 'edit']" class="btn small secondary">
+                    <i class="fas fa-edit"></i> Modifica
+                  </a>
+                </div>
+              </div>
+            </div>
+          }
         </div>
-      </div>
+      }
     </div>
-  </div>
+  }
 </div>

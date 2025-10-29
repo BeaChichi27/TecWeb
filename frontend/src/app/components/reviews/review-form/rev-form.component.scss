@@ -1,4 +1,3 @@
-/* Container principale */
 .review-form-container {
   max-width: 900px;
   margin: 2rem auto;
@@ -6,7 +5,6 @@
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Header con titolo */
 .form-header {
   text-align: center;
   margin-bottom: 2.5rem;
@@ -92,7 +90,6 @@
   }
 }
 
-/* Form principale */
 .review-form {
   display: flex;
   flex-direction: column;
@@ -154,7 +151,6 @@
   }
 }
 
-/* Sezioni del form */
 .form-section {
   background: white;
   border-radius: 16px;
@@ -185,7 +181,6 @@
   }
 }
 
-/* Sezione Rating */
 .rating-section {
   .rating-input {
     .stars-container {
@@ -247,7 +242,6 @@
   }
 }
 
-/* Sezione Contenuto */
 .content-section {
   .content-input {
     .content-textarea {
@@ -362,7 +356,6 @@
   }
 }
 
-/* Azioni del form */
 .form-actions {
   display: flex;
   gap: 1rem;
@@ -431,7 +424,6 @@
   }
 }
 
-/* Stato del form */
 .form-status {
   padding: 1.25rem 1.5rem;
   border-radius: 12px;
@@ -460,7 +452,6 @@
   }
 }
 
-/* Animazioni */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -536,7 +527,6 @@
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .review-form-container {
     margin: 1rem auto;
@@ -651,7 +641,147 @@
   }
 }
 
-/* Miglioramenti accessibilità */
+@media (max-width: 768px) {
+  .review-form-container {
+    padding: 0 0.75rem;
+  }
+  
+  .form-header {
+    margin-bottom: 2rem;
+    
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .restaurant-name {
+      font-size: 1.125rem;
+    }
+  }
+  
+  .funny-prompt-card {
+    flex-direction: column;
+    padding: 1.5rem;
+    text-align: center;
+    
+    .prompt-icon {
+      font-size: 3rem;
+    }
+    
+    .prompt-content {
+      .prompt-question {
+        font-size: 1.25rem;
+      }
+      
+      .prompt-hint {
+        font-size: 0.9rem;
+      }
+    }
+  }
+  
+  .form-section {
+    padding: 1.5rem;
+    
+    .section-header {
+      h2 {
+        font-size: 1.25rem;
+      }
+      
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  }
+  
+  .rating-section {
+    .rating-input {
+      .stars-container {
+        gap: 0.5rem;
+        
+        .star-btn {
+          font-size: 3rem;
+        }
+      }
+    }
+  }
+  
+  .form-actions {
+    .btn {
+      padding: 0.875rem 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .form-header {
+    h1 {
+      font-size: 1.75rem;
+    }
+    
+    .restaurant-name {
+      font-size: 1rem;
+    }
+  }
+  
+  .funny-prompt-card {
+    padding: 1.25rem;
+    
+    .prompt-icon {
+      font-size: 2.5rem;
+    }
+    
+    .prompt-content {
+      .prompt-question {
+        font-size: 1.125rem;
+      }
+      
+      .prompt-hint {
+        font-size: 0.85rem;
+      }
+    }
+  }
+  
+  .form-section {
+    padding: 1.25rem;
+  }
+  
+  .rating-section {
+    .rating-input {
+      .stars-container {
+        gap: 0.25rem;
+        
+        .star-btn {
+          font-size: 2.5rem;
+        }
+      }
+      
+      .rating-label {
+        font-size: 1rem;
+      }
+    }
+  }
+  
+  .content-section {
+    .content-input {
+      .content-textarea {
+        min-height: 120px;
+        font-size: 0.9rem;
+      }
+    }
+    
+    .writing-tips {
+      padding: 1rem;
+      
+      h3 {
+        font-size: 0.95rem;
+      }
+      
+      ul li {
+        font-size: 0.825rem;
+      }
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

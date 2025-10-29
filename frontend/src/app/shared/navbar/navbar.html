@@ -1,12 +1,10 @@
 <nav class="navbar">
   <div class="navbar-container">
-    <!-- Logo e Brand -->
     <a routerLink="/" class="navbar-brand" (click)="closeMenu()">
       <span class="logo-icon">🍽️</span>
       <span class="brand-name">FAKERESTAURANT</span>
     </a>
 
-    <!-- Menu Toggle Button (Mobile) -->
     <button 
       class="menu-toggle-button" 
       (click)="toggleMenu()"
@@ -18,9 +16,7 @@
       <span class="hamburger-line"></span>
     </button>
 
-    <!-- Navigation Links -->
     <div class="navbar-menu" [class.open]="isMenuOpen">
-      <!-- Link comuni a tutti -->
       <a 
         routerLink="/" 
         routerLinkActive="active" 
@@ -42,7 +38,6 @@
         Esplora
       </a>
 
-      <!-- Link per utenti NON autenticati -->
       @if (!isLoggedIn) {
         <a 
           routerLink="/register" 
@@ -67,7 +62,6 @@
 
       <!-- Link per utenti AUTENTICATI -->
       @if (isLoggedIn) {
-        <!-- Se è un proprietario, mostra link per aggiungere ristorante -->
         @if (currentUser?.isOwner) {
           <a 
             routerLink="/restaurants/new" 
@@ -112,10 +106,8 @@
             }
 
             <a 
-              routerLink="/my-reviews" 
-              routerLinkActive="active"
+              (click)="handleMyReviewsClick()"
               class="dropdown-link"
-              (click)="closeMenu()"
             >
               <span class="dropdown-icon">✍️</span>
               Le Mie Recensioni
@@ -136,3 +128,18 @@
     </div>
   </div>
 </nav>
+
+<!-- Popup per "Nessuna Recensione" -->
+@if (showNoReviewsPopup) {
+  <div class="popup-overlay">
+    <div class="popup-content">
+      <button class="close-button" (click)="closeNoReviewsPopup()">&times;</button>
+      <div class="popup-icon">✍️</div>
+      <h3>Non hai ancora scritto recensioni</h3>
+      <p>Che ne dici di iniziare? Esplora i ristoranti e condividi la tua esperienza con la community!</p>
+      <a routerLink="/restaurants" class="btn primary" (click)="closeNoReviewsPopup()">
+        <i class="fas fa-utensils"></i> Esplora Ristoranti
+      </a>
+    </div>
+  </div>
+}

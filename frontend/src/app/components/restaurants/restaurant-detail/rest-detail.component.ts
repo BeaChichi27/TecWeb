@@ -42,9 +42,6 @@ export class RestDetailComponent implements OnInit, OnDestroy {
   reviewsPerPage = 10;
   sortBy: 'votes' | 'date' = 'votes';
   
-  /* 
-   * Stato UI
-   */
   showDeleteConfirm = false;
   
   constructor(
@@ -55,7 +52,6 @@ export class RestDetailComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private voteService: VoteService
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
     console.log("ABBASSO GLOVO");
   }
 
@@ -217,10 +213,6 @@ export class RestDetailComponent implements OnInit, OnDestroy {
         this.reviews = data.reviews;
         this.totalReviews = data.total;
         this.loading = false;
-        
-        /* 
-         * Scroll smooth alla sezione recensioni
-         */
         this.scrollToReviews();
       },
       error: (error) => {
@@ -277,10 +269,7 @@ export class RestDetailComponent implements OnInit, OnDestroy {
     if (!this.restaurant || !this.isOwner) {
       return;
     }
-    
-    /* 
-     * Prima conferma
-     */
+
     const confirmed = confirm(
       '⚠️ ATTENZIONE ⚠️\n\n' +
       `Stai per eliminare il ristorante "${this.restaurant.name}".\n\n` +
@@ -292,10 +281,7 @@ export class RestDetailComponent implements OnInit, OnDestroy {
     );
     
     if (!confirmed) return;
-    
-    /* 
-     * Seconda conferma
-     */
+
     const doubleConfirm = confirm(
       'Ultima conferma:\n\n' +
       'Confermi di voler eliminare definitivamente questo ristorante?'

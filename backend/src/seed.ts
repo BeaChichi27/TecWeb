@@ -43,7 +43,7 @@ async function seedDatabase() {
                 description: 'Esecuzione sequenziale garantita: un piatto alla volta. Perfetto per chi ha tempo da perdere!',
                 latitude: 41.9028,
                 longitude: 12.4964,
-                imagePath: 'single-threaded.jpg',
+                imagePath: 'template.jpg',
                 creatorUserID: owner1.userID,
             },
             {
@@ -51,7 +51,7 @@ async function seedDatabase() {
                 description: 'Ogni pizza ne chiama un\'altra in una catena infinita di dipendenze. Buona fortuna a finire il pasto!',
                 latitude: 45.4642,
                 longitude: 9.1900,
-                imagePath: 'callback-hell.jpg',
+                imagePath: 'template.jpg',
                 creatorUserID: owner1.userID,
             },
             {
@@ -59,7 +59,7 @@ async function seedDatabase() {
                 description: 'Il locale esiste ma il cibo no. Vieni per l\'esperienza metafisica della fame digitale.',
                 latitude: 40.8518,
                 longitude: 14.2681,
-                imagePath: '404-restaurant.jpg',
+                imagePath: 'template.jpg',
                 creatorUserID: owner2.userID,
             },
             {
@@ -67,7 +67,7 @@ async function seedDatabase() {
                 description: 'Atmosfera accogliente, ma ogni tanto il servizio crashha senza preavviso. Porta un debugger!',
                 latitude: 43.7696,
                 longitude: 11.2558,
-                imagePath: 'nullpointer.jpg',
+                imagePath: 'template.jpg',
                 creatorUserID: owner2.userID,
             },
             {
@@ -75,7 +75,7 @@ async function seedDatabase() {
                 description: 'Il sushi arriva quando vuole lui. Promise non mantenute, ma l\'attesa vale la pena... forse.',
                 latitude: 45.0703,
                 longitude: 7.6869,
-                imagePath: 'async-sushi.jpg',
+                imagePath: 'template.jpg',
                 creatorUserID: owner2.userID,
             },
             {
@@ -83,7 +83,7 @@ async function seedDatabase() {
                 description: 'Cucina casalinga che accede a zone di memoria proibite. Il menù cambia ogni volta che provi a leggerlo.',
                 latitude: 44.4056,
                 longitude: 8.9463,
-                imagePath: 'segfault.jpg',
+                imagePath: 'template.jpg',
                 creatorUserID: owner3.userID,
             },
             {
@@ -91,7 +91,7 @@ async function seedDatabase() {
                 description: 'Due camerieri servono lo stesso tavolo contemporaneamente. Chi arriva primo vince!',
                 latitude: 43.3188,
                 longitude: 11.3307,
-                imagePath: 'race-condition.jpg',
+                imagePath: 'template.jpg',
                 creatorUserID: owner3.userID,
             },
             {
@@ -99,7 +99,7 @@ async function seedDatabase() {
                 description: 'Pizza su pizza su pizza in una ricorsione infinita senza caso base. Preparati a esplodere!',
                 latitude: 40.6263,
                 longitude: 14.3757,
-                imagePath: 'stackoverflow-pizza.jpg',
+                imagePath: 'template.jpg',
                 creatorUserID: owner3.userID,
             },
         ], { returning: true });

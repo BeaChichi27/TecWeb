@@ -1,8 +1,3 @@
-/*
-database.ts
-UTILITA DEL FILE: Struttura del database usando Sequelize con SQLite
-*/
-
 import { Sequelize } from 'sequelize';
 
 /* Importazione dei modelli per definire le tabelle del database */
@@ -29,7 +24,7 @@ export async function connect() {
     console.log('Tutti i modelli sono stati sincronizzati!');
   } catch (error) {
     console.error('Impossibile connettersi al database:', error);
-    throw error; // Importante: rilancia l'errore
+    throw error;
   }
 }
 

@@ -24,7 +24,6 @@ import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading
 })
 export class ProfileComponent implements OnInit {
   currentUser: User | null = null;
-  profileForm!: FormGroup;
   passwordForm!: FormGroup;
   
   loading = false;
@@ -38,10 +37,10 @@ export class ProfileComponent implements OnInit {
   reviewsCount = 0;
   
   // Gestione tab
-  activeTab: 'info' | 'restaurants' | 'reviews' = 'info';
-  
-  // Modalità modifica
-  isEditingProfile = false;
+  activeTab: 'restaurants' | 'reviews' = 'restaurants';
+  showNoReviewsPopup = false;
+
+  // Modalità di modifica password
   isChangingPassword = false;
   
   constructor(
@@ -51,7 +50,7 @@ export class ProfileComponent implements OnInit {
     private reviewService: ReviewService,
     private router: Router
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
+    
     console.log("ABBASSO GLOVO");
   }
   
@@ -76,24 +75,10 @@ export class ProfileComponent implements OnInit {
   }
   
   /* 
-   * Creo i form reattivi per la modifica del profilo e il cambio password.
-   * Il form del profilo è precompilato con i dati attuali dell'utente,
-   * mentre il form password è vuoto e include la conferma della password.
+   * Creo il form reattivo per il cambio password.
+   * Il form password include la conferma della nuova password.
    */
   private createForms(): void {
-    // Form per modificare le informazioni del profilo
-    this.profileForm = this.fb.group({
-      username: [
-        { value: this.currentUser?.username, disabled: true },
-        [Validators.required, Validators.minLength(3)]
-      ],
-      email: [
-        this.currentUser?.email,
-        [Validators.required, Validators.email]
-      ],
-      userName: [this.currentUser?.username || '']
-    });
-    
     // Form per cambiare la password
     this.passwordForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
@@ -151,72 +136,6 @@ export class ProfileComponent implements OnInit {
           this.loading = false;
         }
       });
-  }
-  
-  /* 
-   * Abilito la modalità di modifica del profilo rendendo i campi editabili.
-   * L'utente può quindi modificare le sue informazioni personali.
-   */
-  enableProfileEdit(): void {
-    this.isEditingProfile = true;
-    this.profileForm.get('email')?.enable();
-    this.profileForm.get('firstName')?.enable();
-    this.profileForm.get('lastName')?.enable();
-  }
-  
-  /* 
-   * Annullo le modifiche al profilo ripristinando i valori originali
-   * e disabilitando la modalità di modifica.
-   */
-  cancelProfileEdit(): void {
-    this.isEditingProfile = false;
-    this.profileForm.patchValue({
-      email: this.currentUser?.email,
-      userName: [this.currentUser?.username || '']
-    });
-    this.errorMessage = '';
-    this.successMessage = '';
-  }
-  
-  /* 
-   * Salvo le modifiche al profilo inviando i dati aggiornati al server.
-   * Se l'operazione ha successo, aggiorno i dati locali e mostro
-   * un messaggio di conferma all'utente.
-   */
-  saveProfile(): void {
-    if (this.profileForm.invalid) {
-      Object.keys(this.profileForm.controls).forEach(key => {
-        this.profileForm.get(key)?.markAsTouched();
-      });
-      return;
-    }
-    
-    this.loading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-    
-    const updateData = {
-      email: this.profileForm.get('email')?.value,
-      firstName: this.profileForm.get('firstName')?.value,
-      lastName: this.profileForm.get('lastName')?.value
-    };
-    
-    this.authService.updateProfile(updateData).subscribe({
-      next: (updatedUser) => {
-        this.currentUser = updatedUser;
-        this.loading = false;
-        this.successMessage = 'Profilo aggiornato con successo!';
-        this.isEditingProfile = false;
-        
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 3000);
-      },
-      error: (error) => {
-        this.errorMessage = error;
-        this.loading = false;
-      }
-    });
   }
   
   /* 
@@ -279,12 +198,24 @@ export class ProfileComponent implements OnInit {
   
   /* 
    * Cambio la scheda attiva nel profilo per mostrare diverse sezioni:
-   * informazioni personali, ristoranti creati o recensioni scritte.
+   * ristoranti creati o recensioni scritte.
    */
-  switchTab(tab: 'info' | 'restaurants' | 'reviews'): void {
+  switchTab(tab: 'restaurants' | 'reviews'): void {
+    if (tab === 'reviews' && this.reviewsCount === 0) {
+      this.showNoReviewsPopup = true;
+      return; 
+    }
+
     this.activeTab = tab;
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  /* 
+   * Chiudo il popup per "Nessuna Recensione".
+   */
+  closeNoReviewsPopup(): void {
+    this.showNoReviewsPopup = false;
   }
   
   /* 
@@ -323,7 +254,7 @@ export class ProfileComponent implements OnInit {
   }
   
   /* 
-   * Formatto la data in un formato leggibile italiano.
+   * Formatto la data in un formato leggibile.
    */
   formatDate(date: string): string {
     return new Date(date).toLocaleDateString('it-IT', {
@@ -334,9 +265,6 @@ export class ProfileComponent implements OnInit {
   }
   
   /* Getter per accedere facilmente ai controlli del form nel template */
-  get emailControl() { return this.profileForm.get('email'); }
-  get firstNameControl() { return this.profileForm.get('firstName'); }
-  get lastNameControl() { return this.profileForm.get('lastName'); }
   get currentPasswordControl() { return this.passwordForm.get('currentPassword'); }
   get newPasswordControl() { return this.passwordForm.get('newPassword'); }
   get confirmPasswordControl() { return this.passwordForm.get('confirmPassword'); }

@@ -1,6 +1,5 @@
 /*
  * Stili per il componente di login
- * Design moderno con gradiente viola e animazioni fluide
  */
 
 .login-container {
@@ -88,9 +87,6 @@
   }
 }
 
-/*
- * Loading overlay
- */
 .loading-overlay {
   position: absolute;
   top: 0;
@@ -183,9 +179,6 @@
   gap: 1.5rem;
 }
 
-/*
- * Form groups
- */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -475,9 +468,6 @@
   }
 }
 
-/*
- * Divider
- */
 .divider {
   display: flex;
   align-items: center;
@@ -555,9 +545,6 @@
   }
 }
 
-/*
- * Animazione per lo spinner Font Awesome nel pulsante
- */
 .fa-spinner {
   animation: spin 1s linear infinite;
 }

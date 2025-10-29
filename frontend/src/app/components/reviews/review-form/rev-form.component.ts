@@ -20,7 +20,7 @@ import { switchMap, catchError, of } from 'rxjs';
   styleUrls: ['./rev-form.component.scss']
 })
 export class RevFormComponent implements OnInit {
-  // Permette di usare il componente sia inline che come pagina separata
+  // Permette di usare il componente sia inline sia come pagina separata
   @Input() restaurantId?: number;
   @Output() reviewSubmitted = new EventEmitter<Review>();
   
@@ -31,8 +31,8 @@ export class RevFormComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   restaurantName = '';
-  maxRating = 5; // Per generare l'array di stelle
-  hoveredStar = 0; // Per effetto hover sulle stelle
+  maxRating = 5; 
+  hoveredStar = 0; 
   
   // Suggerimenti divertenti per ispirare recensioni umoristiche
   funnyPrompts = [
@@ -54,12 +54,11 @@ export class RevFormComponent implements OnInit {
     private authService: AuthService,
     private restaurantService: RestaurantService
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
     console.log("ABBASSO GLOVO");
   }
   
   /* 
-   * Quando vengo inizializzato, controllo che l'utente sia loggato e lo reindirizzo
+   * Quando viene inizializzato, controllo che l'utente sia loggato e lo reindirizzo
    * al login se necessario. Creo il form per la recensione e determino se siamo
    * in modalità modifica o creazione controllando i parametri dell'URL.
    * Se ho un ID, carico la recensione esistente; altrimenti cerco l'ID del ristorante
@@ -109,7 +108,6 @@ export class RevFormComponent implements OnInit {
           }
         }
         
-        // Carica il nome del ristorante per migliorare l'UX
         if (this.restaurantId) {
           this.loading = true;
           return this.restaurantService.getRestaurantById(this.restaurantId).pipe(
@@ -129,7 +127,7 @@ export class RevFormComponent implements OnInit {
       if (!result) return;
       
       if ('rating' in result) {
-        // È una recensione, popoliamo il form per la modifica
+        // È una recensione, popolo il form per la modifica
         const review = result as Review;
         this.populateForm(review);
         this.restaurantId = review.restaurantId;
@@ -284,19 +282,9 @@ export class RevFormComponent implements OnInit {
       });
     }
   }
-  
-  /* 
-   * Fornisco un accesso semplificato al controllo del contenuto della recensione.
-   * Utilizzo questo getter nel template per verificare la validità e mostrare 
-   * gli eventuali messaggi di errore.
-   */
+
   get contentControl() { return this.reviewForm.get('content'); }
   
-  /* 
-   * Fornisco un accesso semplificato al controllo del rating della recensione.
-   * Utilizzo questo getter nel template per verificare la validità e mostrare 
-   * gli eventuali messaggi di errore.
-   */
   get ratingControl() { return this.reviewForm.get('rating'); }
   
   /* 
@@ -309,8 +297,6 @@ export class RevFormComponent implements OnInit {
   
   /* 
    * Gestisco il click sul pulsante Annulla tornando alla pagina precedente.
-   * Se siamo in modalità embedded, questo pulsante potrebbe essere gestito
-   * dal componente genitore tramite un @Output.
    */
   goBack(): void {
     // Se c'è un restaurantId, torna al dettaglio del ristorante

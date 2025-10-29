@@ -25,7 +25,7 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
+
     console.log("ABBASSO GLOVO");
     
     /* 
@@ -35,12 +35,12 @@ export class LoginComponent implements OnInit {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false] // Campo opzionale per ricordare l'utente
+      rememberMe: [false] // Campo per ricordare l'utente
     });
   }
 
   /* 
-   * All'inizializzazione, verifico se ci sono parametri nella query string:
+   * All'inizializzazione, viene verificato se ci sono parametri nella query string:
    * - 'registered=true': l'utente arriva dalla registrazione, mostro un messaggio di successo
    * - 'returnUrl': l'utente è stato reindirizzato dall'auth guard, salvo l'URL di ritorno
    */
@@ -107,7 +107,7 @@ export class LoginComponent implements OnInit {
     this.authService.login(username, password).subscribe({
       next: () => {
         /* 
-         * Login riuscito! Mostro un messaggio di successo e reindirizzo
+         * Col login riuscito mostro un messaggio di successo e reindirizzo
          * l'utente alla pagina che stava cercando di visitare, oppure
          * alla lista dei ristoranti come pagina predefinita.
          */
@@ -135,15 +135,13 @@ export class LoginComponent implements OnInit {
 
   /* 
    * Toggle per mostrare/nascondere la password.
-   * Migliora l'usabilità permettendo all'utente di verificare cosa sta digitando.
    */
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
   /* 
-   * Pulisco i messaggi di errore quando l'utente inizia a digitare,
-   * per migliorare l'esperienza utente ed evitare messaggi obsoleti.
+   * Pulisco i messaggi di errore quando l'utente inizia a digitare.
    */
   clearMessages(): void {
     if (this.errorMessage) {

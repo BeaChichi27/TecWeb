@@ -1,6 +1,4 @@
-<!-- Container form recensione -->
 <div class="review-form-container">
-  <!-- Header -->
   <div class="form-header">
     <h1>
       @if (isEditMode) {
@@ -17,7 +15,6 @@
     }
   </div>
 
-  <!-- Messaggi -->
   @if (errorMessage && !loading) {
     <div class="message error-message">
       <i class="icon">⚠️</i>
@@ -32,7 +29,6 @@
     </div>
   }
 
-  <!-- Spinner di caricamento -->
   @if (loading) {
     <div class="loading-spinner">
       <div class="spinner"></div>
@@ -40,11 +36,9 @@
     </div>
   }
 
-  <!-- Form -->
   @if (!loading) {
     <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()" class="review-form">
       
-      <!-- Prompt Umoristico -->
       <div class="funny-prompt-card">
         <div class="prompt-icon">🤔</div>
         <div class="prompt-content">
@@ -53,7 +47,6 @@
         </div>
       </div>
 
-      <!-- Sezione Rating -->
       <div class="form-section rating-section">
         <div class="section-header">
           <h2>⭐ Valutazione</h2>
@@ -82,7 +75,6 @@
             }
           </div>
 
-          <!-- Etichetta rating -->
           @if (ratingControl?.value) {
             <div class="rating-label">
               <span class="rating-number">{{ ratingControl?.value }}</span>
@@ -98,7 +90,6 @@
             </div>
           }
 
-          <!-- Errore rating -->
           @if (ratingControl?.invalid && ratingControl?.touched) {
             <div class="validation-error">
               @if (ratingControl?.errors?.['required']) {
@@ -109,7 +100,6 @@
         </div>
       </div>
 
-      <!-- Sezione Contenuto -->
       <div class="form-section content-section">
         <div class="section-header">
           <h2>💬 La tua recensione</h2>
@@ -127,7 +117,6 @@
             maxlength="1000"
           ></textarea>
 
-          <!-- Contatore caratteri -->
           <div class="character-counter">
             <span 
               class="counter"
@@ -142,7 +131,6 @@
             }
           </div>
 
-          <!-- Errori contenuto -->
           @if (contentControl?.invalid && contentControl?.touched) {
             <div class="validation-error">
               @if (contentControl?.errors?.['required']) {
@@ -162,7 +150,6 @@
           }
         </div>
 
-        <!-- Suggerimenti -->
         <div class="writing-tips">
           <h3>💡 Suggerimenti per scrivere una buona recensione:</h3>
           <ul>
@@ -175,7 +162,6 @@
         </div>
       </div>
 
-      <!-- Azioni form -->
       <div class="form-actions">
         <button
           type="button"
@@ -205,7 +191,6 @@
         </button>
       </div>
 
-      <!-- Stato form -->
       @if (reviewForm.invalid && (contentControl?.touched || ratingControl?.touched)) {
         <div class="form-status warning">
           <i class="icon">⚠️</i>

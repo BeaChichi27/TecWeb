@@ -6,7 +6,10 @@ import { UniqueConstraintError } from 'sequelize';
 
 const router = Router();
 
-// Endpoint per la registrazione
+/* 
+ * POST /api/auth/register
+ * Registra un nuovo utente nel sistema
+ */
 router.post('/register', async (req, res) => {
   try {
     const { username, password, email } = req.body;
@@ -37,7 +40,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Endpoint per il login
+/* 
+ * POST /api/auth/login
+ * Autentica un utente e restituisce un token JWT
+ */
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;

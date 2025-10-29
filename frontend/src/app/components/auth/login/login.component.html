@@ -1,6 +1,5 @@
 <div class="login-container">
   <div class="login-card">
-    <!-- Header con logo/titolo -->
     <div class="login-header">
       <div class="logo">
         <i class="fas fa-utensils"></i>
@@ -9,14 +8,12 @@
       <p>Accedi a FAKERESTAURANT per condividere le tue esperienze culinarie</p>
     </div>
 
-    <!-- Loading Spinner -->
     @if (loading) {
       <div class="loading-overlay">
         <div class="spinner"></div>
       </div>
     }
 
-    <!-- Messaggi di successo -->
     @if (successMessage) {
       <div class="success-message">
         <i class="fas fa-check-circle"></i>
@@ -24,7 +21,6 @@
       </div>
     }
 
-    <!-- Messaggi di errore -->
     @if (errorMessage) {
       <div class="error-message">
         <i class="fas fa-exclamation-circle"></i>
@@ -152,7 +148,6 @@
         </p>
       </div>
 
-      <!-- Divider -->
       <div class="divider">
         <span>oppure</span>
       </div>

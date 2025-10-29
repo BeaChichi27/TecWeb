@@ -1,6 +1,4 @@
-<!-- Container lista recensioni -->
 <div class="reviews-list-container">
-  <!-- Messaggi di errore -->
   @if (errorMessage && !loading) {
     <div class="error-message">
       <i class="icon">⚠️</i>
@@ -8,7 +6,6 @@
     </div>
   }
 
-  <!-- Spinner di caricamento -->
   @if (loading) {
     <div class="loading-spinner">
       <div class="spinner"></div>
@@ -16,7 +13,6 @@
     </div>
   }
 
-  <!-- Header con controlli (solo in modalità autonoma) -->
   @if (restaurantId && !loading) {
     <div class="reviews-header">
       <div class="reviews-count">
@@ -24,7 +20,6 @@
         <span class="label">{{ totalReviews === 1 ? 'recensione' : 'recensioni' }}</span>
       </div>
 
-      <!-- Controlli ordinamento -->
       @if (hasReviews) {
         <div class="sort-controls">
           <span class="sort-label">Ordina per:</span>
@@ -47,12 +42,10 @@
     </div>
   }
 
-  <!-- Lista recensioni -->
   @if (hasReviews && !loading) {
     <div class="reviews-list">
       @for (review of displayedReviews; track review.id; let i = $index) {
         <div class="review-card">
-          <!-- Header recensione -->
           <div class="review-header">
             <div class="user-info">
               <div class="avatar">{{ review.username.charAt(0).toUpperCase() }}</div>
@@ -62,7 +55,6 @@
               </div>
             </div>
 
-            <!-- Rating stelle -->
             <div class="review-rating">
               @for (star of getRatingArray(review.rating); track $index) {
                 @if (star === 1) {
@@ -75,7 +67,6 @@
             </div>
           </div>
 
-          <!-- Contenuto recensione -->
           <div class="review-content">
             <p 
               class="review-text"
@@ -95,9 +86,7 @@
             }
           </div>
 
-          <!-- Footer con voti e azioni -->
           <div class="review-footer">
-            <!-- Pulsanti voto -->
             <div class="vote-buttons">
               <button 
                 class="vote-btn upvote"
@@ -122,7 +111,6 @@
               </button>
             </div>
 
-            <!-- Azioni proprietario -->
             @if (isReviewAuthor(review)) {
               <div class="review-actions">
                 <a 
@@ -152,7 +140,6 @@
       }
     </div>
 
-    <!-- Paginazione (solo in modalità autonoma) -->
     @if (restaurantId && totalPages > 1) {
       <div class="pagination">
         <!-- Pulsante Precedente -->
@@ -165,7 +152,6 @@
           ‹ Precedente
         </button>
 
-        <!-- Numeri pagina -->
         @for (page of pageNumbers; track page) {
           <button 
             class="page-btn"
@@ -189,7 +175,6 @@
     }
   }
 
-  <!-- Messaggio nessuna recensione -->
   @if (!hasReviews && !loading && !errorMessage) {
     <div class="no-reviews">
       <i class="icon">📝</i>

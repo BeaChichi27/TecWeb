@@ -7,7 +7,6 @@ import { Restaurant, CreateRestaurantDto, UpdateRestaurantDto } from '../../../m
 import { RestaurantService } from '../../../services/restaurant.service';
 import { AuthService } from '../../../services/auth.service';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading';
-// Import Leaflet
 import * as L from 'leaflet';
 
 @Component({
@@ -61,7 +60,6 @@ export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
     private restaurantService: RestaurantService,
     private authService: AuthService
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
     console.log("ABBASSO GLOVO");
   }
   
@@ -72,7 +70,7 @@ export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
     this.createForm();
     
     /* 
-     * Verifico se siamo in modalità modifica leggendo l'ID dalla URL.
+     * Verifico se c'è la modalità di modifica leggendo l'ID dall'URL.
      * Utilizzo switchMap per caricare i dati del ristorante esistente
      * solo se l'ID è presente nell'URL.
      */
@@ -150,13 +148,12 @@ export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   
   /* 
-   * Inizializza la mappa Leaflet
+   * Inizializzo la mappa Leaflet
    */
   private initializeMap(): void {
     if (this.mapInitialized) return;
     
     try {
-      // Fix per le icone di Leaflet in production
       const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
       const iconUrl = 'assets/leaflet/marker-icon.png';
       const shadowUrl = 'assets/leaflet/marker-shadow.png';
@@ -282,7 +279,6 @@ export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
       })
       /* 
        * L'immagine viene gestita separatamente tramite File input
-       * poiché non è un FormControl standard
        */
     });
   }
@@ -378,9 +374,6 @@ export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
   
   /* 
    * Aggiorno le coordinate quando l'indirizzo cambia.
-   * In un'implementazione reale, qui si userebbe un servizio
-   * di geocoding come Google Maps Geocoding API.
-   * Per ora genero coordinate casuali per demo.
    */
   updateCoordinates(): void {
     const address = this.restaurantForm.get('location.address')?.value;
@@ -388,11 +381,8 @@ export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!address || address.length < 5) {
       return;
     }
-    
-    /* 
-     * Simulazione di geocoding - in produzione usare API reale
-     */
-    const lat = 45 + Math.random(); // Coordinate nell'area Milano
+
+    const lat = 45 + Math.random();
     const lng = 9 + Math.random();
     
     this.restaurantForm.patchValue({
@@ -445,9 +435,6 @@ export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
     const formValue = this.restaurantForm.value;
     
     if (this.isEditMode && this.restaurantId) {
-      /* 
-       * MODALITÀ MODIFICA
-       */
       const updateData: UpdateRestaurantDto = {
         name: formValue.name,
         description: formValue.description,
@@ -478,9 +465,6 @@ export class RestFormComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
     } else {
-      /* 
-       * MODALITÀ CREAZIONE
-       */
       const createData: CreateRestaurantDto = {
         name: formValue.name,
         description: formValue.description,

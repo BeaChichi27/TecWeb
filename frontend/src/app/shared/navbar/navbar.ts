@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
+import { ReviewService } from '../../services/review.service';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading';
 
 @Component({
   selector: 'app-navbar',
@@ -10,7 +12,7 @@ import { User } from '../../models/user.model';
   imports: [
     CommonModule,
     RouterModule
-  ],
+],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss']
 })
@@ -18,12 +20,14 @@ export class NavbarComponent implements OnInit {
   isMenuOpen = false;
   isUserDropdownOpen = false;
   currentUser: User | null = null;
+  showNoReviewsPopup = false;
+  reviewsCount = 0;
   
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private reviewService: ReviewService
   ) {
-    // Easter egg nascosto - visibile solo nella console del browser
     console.log("ABBASSO GLOVO");
   }
   
@@ -35,16 +39,35 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
     // Verifico subito lo stato di autenticazione
     this.currentUser = this.authService.getCurrentUser();
+    if (this.currentUser) {
+      this.loadUserReviewsCount();
+    }
     
-    // Mi iscrivo ai cambiamenti dello stato di autenticazione
+    // Segno i cambiamenti dello stato di autenticazione
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      if (this.currentUser) {
+        this.loadUserReviewsCount();
+      } else {
+        this.reviewsCount = 0;
+      }
+    });
+  }
+
+  private loadUserReviewsCount(): void {
+    if (!this.currentUser) return;
+    this.reviewService.getUserReviews(this.currentUser.id).subscribe({
+      next: (response) => {
+        this.reviewsCount = response.total || 0;
+      },
+      error: () => {
+        this.reviewsCount = 0;
+      }
     });
   }
   
   /* 
    * Verifico se l'utente è attualmente autenticato.
-   * Questo metodo è utile nel template per mostrare contenuti condizionali.
    */
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn;
@@ -63,7 +86,6 @@ export class NavbarComponent implements OnInit {
   
   /* 
    * Alterno lo stato del menu mobile tra aperto e chiuso.
-   * Questo metodo viene chiamato quando l'utente clicca sul pulsante hamburger.
    */
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
@@ -71,7 +93,6 @@ export class NavbarComponent implements OnInit {
 
   /* 
    * Alterno lo stato del dropdown del menu utente.
-   * Questo metodo viene chiamato quando l'utente clicca sull'avatar/nome.
    */
   toggleUserDropdown(): void {
     this.isUserDropdownOpen = !this.isUserDropdownOpen;
@@ -91,7 +112,7 @@ export class NavbarComponent implements OnInit {
     
     // Gestisci il menu mobile
     if (menuButton?.contains(target)) {
-      return; // Il toggle è gestito dal click handler del bottone
+      return;
     }
     
     if (this.isMenuOpen && navbar && !navbar.contains(target)) {
@@ -100,18 +121,30 @@ export class NavbarComponent implements OnInit {
     
     // Gestisci il dropdown utente
     if (userMenuToggle?.contains(target)) {
-      return; // Il toggle è gestito dal click handler del bottone
+      return;
     }
     
     if (this.isUserDropdownOpen && userDropdown && !userDropdown.contains(target)) {
       this.isUserDropdownOpen = false;
     }
   }
+
+  handleMyReviewsClick(): void {
+    this.closeMenu();
+    if (this.reviewsCount === 0) {
+      this.showNoReviewsPopup = true;
+    } else {
+      this.router.navigate(['/profile'], { queryParams: { tab: 'reviews' } });
+    }
+  }
+
+  closeNoReviewsPopup(): void {
+    this.showNoReviewsPopup = false;
+  }
   
   
   /* 
    * Chiudo il menu mobile dopo che l'utente ha cliccato su un link di navigazione.
-   * Questo migliora l'esperienza utente sui dispositivi mobili.
    */
   closeMenu(): void {
     this.isMenuOpen = false;

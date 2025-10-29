@@ -229,26 +229,25 @@
       justify-content: center;
       width: 60px;
       height: 60px;
-      background-color: #28a745;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       text-decoration: none;
-      transition: background-color 0.3s, transform 0.3s;
-      
-      i {
-        font-size: 24px;
-      }
+      transition: all 0.3s ease;
+      font-size: 32px;
+      font-weight: 300;
+      line-height: 1;
       
       &:hover {
-        background-color: #218838;
-        transform: scale(1.05);
+        background: linear-gradient(135deg, #5568d3 0%, #6a3f91 100%);
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
       }
     }
   }
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .restaurant-list-container {
     .restaurant-grid {
