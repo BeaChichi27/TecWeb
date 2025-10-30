@@ -25,6 +25,10 @@ yarn-error.log*
 *.sqlite
 *.sqlite3
 
+# Uploads
+# Ignora le immagini caricate dagli utenti
+backend/uploads/
+
 # IDE and editor directories
 # Ignora le cartelle specifiche dell'editor (ma mantiene le configurazioni utili)
 .vscode/*
