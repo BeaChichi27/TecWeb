@@ -11,13 +11,13 @@ const BASE_URL = 'http://localhost:4200';
 
 // Credenziali per un utente che esiste nel database di test
 const VALID_CREDENTIALS = {
-  email: 'mario@example.com',
-  password: 'Password123!',
+  username: 'mario_rossi',
+  password: 'password123',
 };
 
 // Credenziali per un utente che NON esiste o con password errata
 const INVALID_CREDENTIALS = {
-  email: 'wrong@example.com',
+  username: 'wrong_user',
   password: 'WrongPassword',
 };
 
@@ -38,24 +38,26 @@ test.describe('Flussi di Autenticazione', () => {
     });
 
     await test.step('2. Compila e invia il form', async () => {
-      // Inserisce email e password valide
-      await page.fill('input[type="email"]', VALID_CREDENTIALS.email);
+      // Inserisce username e password valide
+      await page.fill('input[placeholder*="username" i], input[placeholder*="nome" i]', VALID_CREDENTIALS.username);
       await page.fill('input[type="password"]', VALID_CREDENTIALS.password);
       // Clicca sul pulsante di submit per inviare le credenziali
       await page.click('button[type="submit"]');
     });
 
-    await test.step('3. Verifica successo e reindirizzamento al profilo', async () => {
-      // Attende che l'URL diventi quello del profilo dopo il login
-      await page.waitForURL(`${BASE_URL}/profile`);
+    await test.step('3. Verifica successo e reindirizzamento', async () => {
+      // L'app reindirizza a /restaurants dopo il login, quindi verifichiamo quello
+      await page.waitForURL(`${BASE_URL}/restaurants`);
       // Verifica che l'URL finale sia corretto
-      await expect(page).toHaveURL(`${BASE_URL}/profile`); 
+      await expect(page).toHaveURL(`${BASE_URL}/restaurants`); 
       
-      // Controlla che il titolo della pagina del profilo sia visibile
-      await expect(page.locator('h1', { hasText: 'Il mio Profilo' })).toBeVisible();
+      // Verifica che il token sia stato salvato nel sessionStorage (non localStorage!)
+      const token = await page.evaluate(() => sessionStorage.getItem('token'));
+      expect(token).not.toBeNull();
 
-      // Verifica che nella navbar sia apparso il link di logout, confermando lo stato di login
-      await expect(page.locator('a[href="/logout"]')).toBeVisible(); 
+      // Verifica che l'utente sia loggato verificando la presenza dello username nella navbar
+      const usernameInNav = page.locator('.user-name, .username').first();
+      await expect(usernameInNav).toBeVisible();
     });
   });
 
@@ -65,7 +67,7 @@ test.describe('Flussi di Autenticazione', () => {
     });
 
     await test.step('2. Compila e invia il form con dati errati', async () => {
-      await page.fill('input[type="email"]', INVALID_CREDENTIALS.email);
+      await page.fill('input[placeholder*="username" i], input[placeholder*="nome" i]', INVALID_CREDENTIALS.username);
       await page.fill('input[type="password"]', INVALID_CREDENTIALS.password);
       await page.click('button[type="submit"]');
     });
@@ -77,11 +79,11 @@ test.describe('Flussi di Autenticazione', () => {
       // Verifica che un messaggio di errore sia mostrato all'utente
       const errorPopup = page.locator('.error-message, .toast-error, .alert-danger');
       await expect(errorPopup).toBeVisible();
-      await expect(errorPopup).toContainText('Credenziali non valide');
+      await expect(errorPopup).toContainText('Nome utente o password non validi');
 
-      // Controlla che il token non sia stato salvato nel localStorage
-      const token = await page.evaluate(() => localStorage.getItem('token'));
-      expect(token).toBeFalsy();
+      // Controlla che il token non sia stato salvato nel sessionStorage
+      const token = await page.evaluate(() => sessionStorage.getItem('token'));
+      expect(token).toBeNull();
     });
   });
 
@@ -98,7 +100,8 @@ test.describe('Flussi di Autenticazione', () => {
 
   await test.step('3. Verifica il reindirizzamento alla pagina di login', async () => {
     // L'AuthGuard dovrebbe reindirizzare l'utente non autenticato alla pagina di login
-    await expect(page).toHaveURL(`${BASE_URL}/login`);
+    // con il parametro returnUrl che indica dove tornare dopo il login
+    await expect(page).toHaveURL(/\/login(\?returnUrl=.*)?/);
   });
 });
 
@@ -106,7 +109,7 @@ test.describe('Flussi di Autenticazione', () => {
     
     await test.step('1. Naviga e compila con credenziali errate', async () => {
       await page.goto(`${BASE_URL}/login`);
-      await page.fill('input[type="email"]', INVALID_CREDENTIALS.email);
+      await page.fill('input[placeholder*="username" i], input[placeholder*="nome" i]', INVALID_CREDENTIALS.username);
       await page.fill('input[type="password"]', INVALID_CREDENTIALS.password);
     });
 
@@ -118,23 +121,7 @@ test.describe('Flussi di Autenticazione', () => {
 
       // Asserzione critica 2: DEVE apparire un messaggio di errore
       await expect(page.locator('.error-message')).toBeVisible();
-      await expect(page.locator('.error-message')).toContainText(/credenziali non valide|errore di login/i);
-    });
-  });
-
-  test('Accesso negato a pagine protette senza autenticazione', async ({ page }) => {
-    await page.goto(`${BASE_URL}/login`); 
-
-    await test.step('1. Prova ad accedere alla pagina /profile direttamente', async () => {
-      await page.goto(`${BASE_URL}/profile`);
-    });
-
-    await test.step('2. Verifica il redirect automatico alla pagina di login', async () => {
-      // Il router guard dovrebbe intercettare la richiesta e reindirizzare
-      await page.waitForURL(`${BASE_URL}/login`);
-      await expect(page).toHaveURL(`${BASE_URL}/login`);
-      
-      await expect(page.locator('button[type="submit"]', { hasText: 'Accedi' })).toBeVisible();
+      await expect(page.locator('.error-message')).toContainText(/nome utente o password non validi/i);
     });
   });
 });
